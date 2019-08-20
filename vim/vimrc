@@ -97,10 +97,14 @@ call plug#begin('~/.vim/plugged')
     set shell=$SHELL
 	
 	" avoid hit-enter prompts
-    set shortmess+=c
+    if v:version > 800
+		set shortmess+=c
+	endif
 
 	" Unknown
-	set diffopt+=vertical,iwhite,internal,algorithm:patience,hiddenoff
+	if v:version > 800
+		set diffopt+=vertical,iwhite,internal,algorithm:patience,hiddenoff
+	endif
     set hidden " current buffer can be put into background
 	
 
@@ -108,7 +112,9 @@ call plug#begin('~/.vim/plugged')
     " Appearence
 	""""""""""""""""""""""""""
 		" set good colors
-		set termguicolors
+		if v:version > 800
+			set termguicolors
+		endif
 
 		" show the status line all the time
 	    set laststatus=2 
@@ -145,7 +151,9 @@ call plug#begin('~/.vim/plugged')
 		set mat=2 
 	
 		" always show left-side bar (for git, linters, etc)
-		set signcolumn=yes
+		if v:version > 800
+			set signcolumn=yes
+		endif
 
 	""""""""""""""""""""""""""
     " Tab control
