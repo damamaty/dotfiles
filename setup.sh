@@ -2,6 +2,8 @@
 
 DIR=$(cd `dirname $0` && pwd)
 
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
+
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ln -sf $DIR/tmux/tmux.conf ~/.tmux.conf
 
