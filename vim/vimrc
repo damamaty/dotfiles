@@ -259,10 +259,17 @@ call plug#begin('~/.vim/plugged')
 			keeppatterns %s/\s\+$//e
 			call winrestview(l:save)
 		endfun
-		autocmd BufWritePre * :call TrimWhitespace()
+
+		augroup AutoTrim
+			autocmd!
+			autocmd BufWritePre * :call TrimWhitespace()
+		augroup END
 
 		" indent to 2 spaces for yaml
-		autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+		augroup Yaml
+			autocmd!
+			autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+		augroup END
     """"""""""""""""""""""""""
 	" Plugins
     """"""""""""""""""""""""""
