@@ -12,3 +12,10 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 mkdir -p ~/.config/nvim/
 ln -sf $DIR/vim/vimrc ~/.vimrc
 ln -sf $DIR/vim/vimrc ~/.config/nvim/init.vim
+
+mkdir -p ~/.config/kitty/
+ln -sf $DIR/kitty/kitty.conf ~/.config/kitty/kitty.conf
+ln -sf $DIR/kitty/macos-launch-services-cmdline ~/.config/kitty/macos-launch-services-cmdline
+
+mkdir -p ~/.config/alacritty/
+ln -sf $DIR/alacrity/alacritty.yml ~/.config/alacritty/alacritty.yml
