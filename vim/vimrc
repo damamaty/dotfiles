@@ -52,6 +52,7 @@ call plug#begin('~/.vim/plugged')
 	nnoremap <leader>ve :e $MYVIMRC<CR>
 	" " Reload vimr configuration file
 	nnoremap <leader>vr :source $MYVIMRC<CR>
+
 """"""""""""""""""""""""""""""
 "" General Options
 """"""""""""""""""""""""""""""
@@ -59,26 +60,26 @@ call plug#begin('~/.vim/plugged')
 	set t_Co=256
 
 	" faster redrawing
-	set ttyfast 
+	set ttyfast
 
 	" autoreload files
 	set autoread
 
 	" set X lines to the cursors - when moving vertical
-    set scrolloff=7 
+    set scrolloff=7
 
 	set encoding=UTF-8
 
 	" set history length
 	set history=1000
-    
+
 	" enhanced command line completion
-	set wildmenu 
+	set wildmenu
 	" complete files like a shell
-    set wildmode=list:longest 
+    set wildmode=list:longest
 
 	" make backspace behave in a sane manner
-	set backspace=indent,eol,start 
+	set backspace=indent,eol,start
 
 	" use MacOS clipboard
 	set clipboard=unnamed
@@ -96,7 +97,7 @@ call plug#begin('~/.vim/plugged')
 
 
 	set timeoutlen=500
-	
+
 	" update time after editing stop to call plugins
     set updatetime=300
 
@@ -105,9 +106,9 @@ call plug#begin('~/.vim/plugged')
 
 	" set vim's shell to default's shell
     set shell=$SHELL
-	
+
 	" avoid hit-enter prompts
-    if v:version > 800
+    if (v:version > 800 || has('nvim'))
 		set shortmess+=c
 	endif
 
@@ -116,7 +117,7 @@ call plug#begin('~/.vim/plugged')
 		set diffopt+=vertical,iwhite,internal,algorithm:patience,hiddenoff
 	endif
     set hidden " current buffer can be put into background
-	
+
 
 	""""""""""""""""""""""""""
     " Appearence
@@ -127,18 +128,18 @@ call plug#begin('~/.vim/plugged')
 		endif
 
 		" show the status line all the time
-	    set laststatus=2 
-	
+	    set laststatus=2
+
 		" set terminal title
-		set title 
-	
+		set title
+
 		" show vertical rules
 		set colorcolumn=120
-	
+
 		" open new split panes to right and bottom, which feels more natural than Vim’s default:
 		set splitbelow
 		set splitright
-	
+
 		" show line numbers
 		set number
 
@@ -146,20 +147,20 @@ call plug#begin('~/.vim/plugged')
 		syntax on
 
 		" show incomplete commands
-		set showcmd 
+		set showcmd
 
-		" don't show which mode 
-		set noshowmode 
+		" don't show which mode
+		set noshowmode
 
 		" command bar height
-		set cmdheight=1 
+		set cmdheight=1
 
 		" show matching braces
-		set showmatch 
-	
-		" how many tenths of a second to blink when matching brackets 
-		set mat=2 
-	
+		set showmatch
+
+		" how many tenths of a second to blink when matching brackets
+		set mat=2
+
 		" always show left-side bar (for git, linters, etc)
 		if v:version > 800
 			set signcolumn=yes
@@ -169,60 +170,60 @@ call plug#begin('~/.vim/plugged')
     " Tab control
 	""""""""""""""""""""""""""
 		" tab respects 'tabstop', 'shiftwidth', and 'softtabstop'
-		set smarttab 
-	
+		set smarttab
+
 		" the visible width of tabs
-		set tabstop=4 
-	
+		set tabstop=4
+
 		" edit as if the tabs are 4 characters wide
-		set softtabstop=4 
-	
+		set softtabstop=4
+
 		" number of spaces to use for indent and unindent
-		set shiftwidth=4 
-	
+		set shiftwidth=4
+
 		" round indent to a multiple of 'shiftwidth'
-		set shiftround 
-	
+		set shiftround
+
 		" automatically set indent of new line
-		set autoindent 
+		set autoindent
 
 	""""""""""""""""""""""""""
     " Wrapping
 	""""""""""""""""""""""""""
-	
+
 		" turn on line wrapping
-		set wrap 
+		set wrap
 
 		" wrap lines when coming within n characters from side
-		set wrapmargin=8 
-	
+		set wrapmargin=8
+
 		" set soft wrapping
-		set linebreak 
-	
-		" show ellipsis at breaking   
-		set showbreak=… 
+		set linebreak
+
+		" show ellipsis at breaking
+		set showbreak=…
 
 		" autowrap text at width 120 (if possible)
 		set textwidth=120
-	
+
 	""""""""""""""""""""""""""
     " Search and Replace
 	""""""""""""""""""""""""""
-	
+
 		" case insensitive searching
-		set ignorecase 
+		set ignorecase
 
 		" case-sensitive if expresson contains a capital letter
-		set smartcase 
-	
+		set smartcase
+
 		" highlight search results
-		set hlsearch 
-	
+		set hlsearch
+
 		" set incremental search, like modern browsers
-		set incsearch 
-	
+		set incsearch
+
 		" don't redraw while executing macros
-		set lazyredraw 
+		set lazyredraw
 
 		set magic " Set magic on, for regex
 
@@ -235,6 +236,7 @@ call plug#begin('~/.vim/plugged')
 	""""""""""""""""""""""""""
 	" Error bells
 	""""""""""""""""""""""""""
+
 	    set noerrorbells
 		set visualbell
 		set t_vb=
