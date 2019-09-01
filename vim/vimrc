@@ -244,18 +244,45 @@ call plug#begin('~/.vim/plugged')
     """"""""""""""""""""""""""
 	" Invisible characters
     """"""""""""""""""""""""""
-	set list
-    set listchars=tab:→\ ,eol:¬,trail:⋅,extends:❯,precedes:❮
-    set showbreak=↪
-Plug 'morhetz/gruvbox'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-let g:airline_theme='gruvbox'
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
-"let g:airline_statusline_ontop=1
-Plug 'mhinz/vim-startify'
+
+		set list
+		set listchars=tab:→\ ,eol:¬,trail:⋅,extends:❯,precedes:❮
+		set showbreak=↪
+
+    """"""""""""""""""""""""""
+	" Custom functions
+    """"""""""""""""""""""""""
+
+		" trim trailing whitespaces on save
+		func! TrimWhitespace()
+			let l:save = winsaveview()
+			keeppatterns %s/\s\+$//e
+			call winrestview(l:save)
+		endfun
+		autocmd BufWritePre * :call TrimWhitespace()
+
+		" indent to 2 spaces for yaml
+		autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+    """"""""""""""""""""""""""
+	" Plugins
+    """"""""""""""""""""""""""
+
+		" color scheme
+		Plug 'morhetz/gruvbox'
+
+		" status bar
+		Plug 'vim-airline/vim-airline'
+		Plug 'vim-airline/vim-airline-themes'
+
+		let g:airline_theme='gruvbox'
+		let g:airline_powerline_fonts = 1
+		let g:airline#extensions#tabline#enabled = 1
+		let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+		"let g:airline_statusline_ontop=1
+
+		" customize start screen
+		Plug 'mhinz/vim-startify'
+
 Plug 'moll/vim-bbye'
 Plug 'tpope/vim-commentary'
 Plug 'justinmk/vim-sneak'
