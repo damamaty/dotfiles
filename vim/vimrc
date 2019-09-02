@@ -45,8 +45,8 @@ call plug#begin('~/.vim/plugged')
 	map <leader>f <Plug>Sneak_s
 	map <leader>F <Plug>Sneak_S
 
-	map <leader>[ :bprevious<CR>
-	map <leader>] :bnext<CR>
+	nnoremap <leader>[ :bprevious<CR>
+	nnoremap <leader>] :bnext<CR>
 
 	" Edit vimr configuration file
 	nnoremap <leader>ve :e $MYVIMRC<CR>
