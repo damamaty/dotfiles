@@ -187,6 +187,8 @@ call plug#begin('~/.vim/plugged')
 		" automatically set indent of new line
 		set autoindent
 
+		" enable language specific indent
+		filetype plugin indent on
 	""""""""""""""""""""""""""
     " Wrapping
 	""""""""""""""""""""""""""
