@@ -290,6 +290,15 @@ call plug#begin('~/.vim/plugged')
 		" customize start screen
 		Plug 'mhinz/vim-startify'
 
+		" indent text objects
+		Plug 'michaeljsmith/vim-indent-object'
+
+		" more funny (no) general text objects
+		Plug 'wellle/targets.vim'
+
+		" and even more text objects (and motions) for python
+		Plug 'jeetsukumaran/vim-pythonsense'
+
 Plug 'moll/vim-bbye'
 Plug 'tpope/vim-commentary'
 Plug 'justinmk/vim-sneak'
