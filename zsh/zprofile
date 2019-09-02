@@ -1,0 +1,99 @@
+# General
+
+export CPPFLAGS="-I/usr/include"
+
+
+# Zlib (required for python building)
+export LDFLAGS="-L/usr/local/opt/zlib/lib"
+export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/zlib/include"
+export PKG_CONFIG_PATH="/usr/local/opt/zlib/lib/pkgconfig"
+
+# Readline
+export LDFLAGS="-L/usr/local/opt/readline/lib"
+export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/readline/include"
+export PKG_CONFIG_PATH="/usr/local/opt/readline/lib/pkgconfig"
+
+# PostgreSQL
+
+export PATH="/usr/local/opt/postgresql@10/bin:$PATH"
+export LDFLAGS="-L/usr/local/opt/postgresql@10/lib"
+export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/postgresql@10/include"
+export PKG_CONFIG_PATH="/usr/local/opt/postgresql@10/lib/pkgconfig"
+
+# MySQL
+
+export PATH="/usr/local/opt/mysql-client/bin:$PATH"
+export LDFLAGS="-L/usr/local/opt/mysql-client/lib"
+export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/mysql-client/include"
+export PKG_CONFIG_PATH="/usr/local/opt/mysql-client/lib/pkgconfig"
+
+
+# CoreUtil
+export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+
+
+# OpenSSL
+#
+#export PATH="/usr/local/opt/openssl/bin:$PATH"
+#export LDFLAGS="-L/usr/local/opt/openssl/lib"
+#export CPPFLAGS="-I/usr/local/opt/openssl/include"
+#export PKG_CONFIG_PATH="/usr/local/opt/openssl/lib/pkgconfig"
+
+
+#If you need to have gettext first in your PATH run:
+#  echo 'export PATH="/usr/local/opt/gettext/bin:$PATH"' >> ~/.bash_profile
+#
+#For compilers to find gettext you may need to set:
+#  export LDFLAGS="-L/usr/local/opt/gettext/lib"
+#
+#  export CPPFLAGS="-I/usr/local/opt/gettext/include"
+#
+
+#If you need to have sqlite first in your PATH run:
+#  echo 'export PATH="/usr/local/opt/sqlite/bin:$PATH"' >> ~/.bash_profile
+#
+#For compilers to find sqlite you may need to set:
+#  export LDFLAGS="-L/usr/local/opt/sqlite/lib"
+#  export CPPFLAGS="-I/usr/local/opt/sqlite/include"
+#
+#For pkg-config to find sqlite you may need to set:
+#  export PKG_CONFIG_PATH="/usr/local/opt/sqlite/lib/pkgconfig"
+
+
+#Python has been installed as
+#  /usr/local/bin/python3
+#
+#Unversioned symlinks `python`, `python-config`, `pip` etc. pointing to
+#`python3`, `python3-config`, `pip3` etc., respectively, have been installed into
+#  /usr/local/opt/python/libexec/bin
+#
+#If you need Homebrew's Python 2.7 run
+#  brew install python@2
+#
+#You can install Python packages with
+#  pip3 install <package>
+#They will install into the site-package directory
+#  /usr/local/lib/python3.7/site-packages
+#
+#See: https://docs.brew.sh/Homebrew-and-Python
+#
+#
+#
+#By default, binaries installed by gem will be placed into:
+#  /usr/local/lib/ruby/gems/2.6.0/bin
+#
+#You may want to add this to your PATH.
+#
+#ruby is keg-only, which means it was not symlinked into /usr/local,
+#because macOS already provides this software and installing another version in
+#parallel can cause all kinds of trouble.
+#
+#If you need to have ruby first in your PATH run:
+#  echo 'export PATH="/usr/local/opt/ruby/bin:$PATH"' >> ~/.bash_profile
+#
+#For compilers to find ruby you may need to set:
+#  export LDFLAGS="-L/usr/local/opt/ruby/lib"
+#  export CPPFLAGS="-I/usr/local/opt/ruby/include"
+#
+#For pkg-config to find ruby you may need to set:
+#  export PKG_CONFIG_PATH="/usr/local/opt/ruby/lib/pkgconfig"

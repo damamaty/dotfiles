@@ -21,3 +21,6 @@ ln -sf $DIR/kitty/macos-launch-services-cmdline ~/.config/kitty/macos-launch-ser
 
 mkdir -p ~/.config/alacritty/
 ln -sf $DIR/alacrity/alacritty.yml ~/.config/alacritty/alacritty.yml
+
+ln -sf $DIR/zsh/zshrc ~/.zshrc
+ln -sf $DIR/zsh/zprofile ~/.zprofile
