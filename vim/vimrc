@@ -394,38 +394,43 @@ Plug 'tpope/vim-fugitive'
 	Plug 'tommcdo/vim-fubitive'
 Plug 'jlanzarotta/bufexplorer'
 
-  " syntax check
-  Plug 'w0rp/ale'
-  " Autocomplete
-  Plug 'ncm2/ncm2'
-  Plug 'roxma/nvim-yarp'
-  Plug 'ncm2/ncm2-bufword'
-  Plug 'ncm2/ncm2-path'
-  Plug 'ncm2/ncm2-jedi'
-  " Formater
-  Plug 'Chiel92/vim-autoformat'
+        """"""""""""""""""""""""""
+        " Autocomplete, linting, etc
+        """"""""""""""""""""""""""
+        if has("nvim")
+            " syntax check
+            Plug 'w0rp/ale'
+            " Autocomplete
+            Plug 'ncm2/ncm2'
+            Plug 'roxma/nvim-yarp'
+            Plug 'ncm2/ncm2-bufword'
+            Plug 'ncm2/ncm2-path'
+            Plug 'ncm2/ncm2-jedi'
+            " Formater
+            Plug 'Chiel92/vim-autoformat'
 
-  " NCM2
-augroup NCM2
-  autocmd!
-  " enable ncm2 for all buffers
-  autocmd BufEnter * call ncm2#enable_for_buffer()
-  " :help Ncm2PopupOpen for more information
-  set completeopt=noinsert,menuone,noselect
-  " When the <Enter> key is pressed while the popup menu is visible, it only
-  " hides the menu. Use this mapping to close the menu and also start a new line.
-  inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
-	let g:python_host_prog = '/Users/damamaty/.pyenv/versions/neovim2/bin/python'
-	let g:python3_host_prog = '/Users/damamaty/.pyenv/versions/neovim3/bin/python'
-augroup END
-" Ale
-let g:ale_lint_on_enter = 0
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-let g:ale_linters = {'python': ['flake8']}
-nnoremap <silent> gd :ALEGoToDefinition<CR>
+            " NCM2
+            augroup NCM2
+            autocmd!
+            " enable ncm2 for all buffers
+            autocmd BufEnter * call ncm2#enable_for_buffer()
+            " :help Ncm2PopupOpen for more information
+            set completeopt=noinsert,menuone,noselect
+            " When the <Enter> key is pressed while the popup menu is visible, it only
+            " hides the menu. Use this mapping to close the menu and also start a new line.
+            inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
+                let g:python_host_prog = '/Users/damamaty/.pyenv/versions/neovim2/bin/python'
+                let g:python3_host_prog = '/Users/damamaty/.pyenv/versions/neovim3/bin/python'
+            augroup END
+            " Ale
+            let g:ale_lint_on_enter = 0
+            let g:ale_lint_on_text_changed = 'never'
+            let g:ale_echo_msg_error_str = 'E'
+            let g:ale_echo_msg_warning_str = 'W'
+            let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+            let g:ale_linters = {'python': ['flake8']}
+            nnoremap <silent> gd :ALEGoToDefinition<CR>
+        endif
 
 call plug#end()
 
