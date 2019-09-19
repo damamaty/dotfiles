@@ -318,7 +318,11 @@ let g:sneak#label = 1
 Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tmux-plugins/vim-tmux'
-Plug '/usr/local/opt/fzf'
+if !empty(glob("/usr/local/opt/fzf"))
+    Plug '/usr/local/opt/fzf'
+else
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+endif
 Plug 'junegunn/fzf.vim'
         let g:fzf_layout = { 'down': '~50%' }
 
