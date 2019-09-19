@@ -25,13 +25,17 @@ export TERM=xterm-256color
 export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git --color=always'
 export FZF_DEFAULT_OPTS="--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
 export FZF_CTRL_R_OPTS="--ansi --preview-window 'right:60%' --preview 'bat --color=always --style=header,grid --line-range :300 {}'"
+
 [ -n "$TMUX" ] && export TERM=screen-256color
+
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+
 
 # ZSH Options
 unsetopt correct_all
 
 # Plugins
-
 # # Disable bracketing paste because it causes issues with autosuggestions.
 autoload -Uz bracketed-paste-magic
 zle -N bracketed-paste bracketed-paste-magic
