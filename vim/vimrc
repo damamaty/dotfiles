@@ -17,12 +17,10 @@
 
 call plug#begin('~/.vim/plugged')
 
-""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "" Key Bindings
-""""""""""""""""""""""""""""""
-    let mapleader = ','
-	noremap <leader>/ :Commentary<cr>
-
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"
 	" don't use arrowkeys
 
 	noremap <Up> <NOP>
@@ -35,6 +33,15 @@ call plug#begin('~/.vim/plugged')
 	inoremap <Down>  <NOP>
 	inoremap <Left>  <NOP>
 	inoremap <Right> <NOP>
+
+	" leader key
+    let mapleader = ','
+
+	" close buffer without closing the window
+	nnoremap <LEADER>d :BD<CR>
+
+	" plugin bindings
+	noremap <leader>/ :Commentary<cr>
 
 	" disable useless ex-mode
 	nnoremap Q <nop>
@@ -128,7 +135,7 @@ call plug#begin('~/.vim/plugged')
 		endif
 
 		" show the status line all the time
-	    set laststatus=2
+		set laststatus=2
 
 		" set terminal title
 		set title
@@ -162,7 +169,7 @@ call plug#begin('~/.vim/plugged')
 		set mat=2
 
 		" always show left-side bar (for git, linters, etc)
-		if v:version > 800
+		if (v:version > 800 || has("nvim"))
 			set signcolumn=yes
 		endif
 
@@ -187,6 +194,9 @@ call plug#begin('~/.vim/plugged')
 		" automatically set indent of new line
 		set autoindent
 
+		" expand tabs
+		set expandtab
+
 		" enable language specific indent
 		filetype plugin indent on
 	""""""""""""""""""""""""""
@@ -204,9 +214,6 @@ call plug#begin('~/.vim/plugged')
 
 		" show ellipsis at breaking
 		set showbreak=…
-
-		" autowrap text at width 120 (if possible)
-		set textwidth=120
 
 	""""""""""""""""""""""""""
     " Search and Replace
@@ -239,7 +246,7 @@ call plug#begin('~/.vim/plugged')
 	" Error bells
 	""""""""""""""""""""""""""
 
-	    set noerrorbells
+		set noerrorbells
 		set visualbell
 		set t_vb=
 
@@ -300,6 +307,9 @@ call plug#begin('~/.vim/plugged')
 
 		" and even more text objects (and motions) for python
 		Plug 'jeetsukumaran/vim-pythonsense'
+
+		" close buffer without closing the window
+		Plug 'qpkorr/vim-bufkill'
 
 Plug 'moll/vim-bbye'
 Plug 'tpope/vim-commentary'
