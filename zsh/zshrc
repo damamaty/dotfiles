@@ -55,10 +55,10 @@ zplugin load "chriskempson/base16-shell"
 zplugin ice wait"1" lucid
 zplugin light lukechilds/zsh-nvm
 
-zplugin ice atclone"./libexec/pyenv init - > zpyenv.zsh" \
-    atinit'export PYENV_ROOT="$PWD"' atpull"%atclone" \
-    as'command' pick'bin/pyenv' src"zpyenv.zsh" nocompile'!'
-zplugin light pyenv/pyenv
+# zplugin ice atclone"./libexec/pyenv init - > zpyenv.zsh" \
+#     atinit'export PYENV_ROOT="$PWD"' atpull"%atclone" \
+#     as'command' pick'bin/pyenv' src"zpyenv.zsh" nocompile'!'
+# zplugin light pyenv/pyenv
 
 configure_theme() {
 
@@ -389,4 +389,6 @@ export CLICOLOR=YES
 zplugin ice wait"0" atinit"zpcompinit; zpcdreplay" lucid
 zplugin light zdharma/fast-syntax-highlighting
 
+export PATH="/Users/damamaty/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
