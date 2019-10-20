@@ -31,6 +31,8 @@ export FZF_CTRL_R_OPTS="--ansi --preview-window 'right:60%' --preview 'bat --col
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
+# Fix backspace in vi mode
+bindkey -v '^?' backward-delete-char
 
 # ZSH Options
 unsetopt correct_all
