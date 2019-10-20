@@ -49,7 +49,7 @@ zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
 zplugin load "trapd00r/LS_COLORS"
 
 # Shell colors
-zplugin ice pick"async.sh" src"scripts/base16-gruvbox-dark-hard.sh"
+zplugin ice pick"async.sh" src"scripts/base16-gruvbox-dark-pale.sh"
 zplugin load "chriskempson/base16-shell"
 
 zplugin ice wait"1" lucid
