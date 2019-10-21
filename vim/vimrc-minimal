@@ -1,0 +1,24 @@
+" tab respects 'tabstop', 'shiftwidth', and 'softtabstop'
+set smarttab
+
+" the visible width of tabs
+set tabstop=4
+
+" edit as if the tabs are 4 characters wide
+set softtabstop=4
+
+" number of spaces to use for indent and unindent
+set shiftwidth=4
+
+" round indent to a multiple of 'shiftwidth'
+set shiftround
+
+" automatically set indent of new line
+set autoindent
+
+" expand tabs
+set expandtab
+
+" enable language specific indent
+filetype plugin indent on
+
