@@ -30,13 +30,23 @@ call plug#begin('~/.vim/plugged')
     inoremap <Right> <NOP>
 
     " leader key
-    let mapleader = ','
+    let mapleader = ' '
+    nnoremap <SPACE> <Nop>
+
+    " consistent Y behavior
+    nnoremap Y y$
+
+
 
     " close buffer without closing the window
     nnoremap <LEADER>d :BD<CR>
 
     " plugin bindings
     noremap <leader>/ :Commentary<cr>
+
+    " open ranger
+    map <leader>f :RangerWorkingDirectory<CR>
+    map <leader>F :RangerCurrentFile<CR>
 
     " disable useless ex-mode
     nnoremap Q <nop>
@@ -46,9 +56,6 @@ call plug#begin('~/.vim/plugged')
 
     nnoremap <leader>o o<Esc>
     nnoremap <leader>O O<Esc>
-
-    map <leader>f <Plug>Sneak_s
-    map <leader>F <Plug>Sneak_S
 
     nnoremap <leader>[ :bprevious<CR>
     nnoremap <leader>] :bnext<CR>
@@ -317,6 +324,9 @@ call plug#begin('~/.vim/plugged')
         let g:airline_theme='gruvbox'
         let g:airline_powerline_fonts = 1
         let g:airline#extensions#tabline#enabled = 1
+        let g:airline#extensions#tabline#show_splits = 1 "enable/disable displaying open splits per tab (only when tabs are opened). >
+        let g:airline#extensions#tabline#show_buffers = 1 " enable/disable displaying buffers with a single tab
+        let g:airline#extensions#tabline#tab_nr_type = 1 " tab number
         let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
         let g:airline#extensions#coc#enabled = 1
         let g:airline#extensions#coc#error_symbol = 'E:'
@@ -478,10 +488,6 @@ call plug#begin('~/.vim/plugged')
             " Remap for rename current word
             nmap <leader>rn <Plug>(coc-rename)
 
-            " Remap for format selected region
-            xmap <leader>f  <Plug>(coc-format-selected)
-            nmap <leader>f  <Plug>(coc-format-selected)
-
             augroup mygroup
             autocmd!
             " Setup formatexpr specified filetype(s).
@@ -541,8 +547,13 @@ call plug#begin('~/.vim/plugged')
             Plug 'junegunn/gv.vim'
             Plug 'tommcdo/vim-fubitive'
             Plug 'moll/vim-bbye'
-            Plug 'justinmk/vim-sneak'
-            let g:sneak#label = 1
+
+        """"""""""""""""""""""""""
+        " Try
+        """"""""""""""""""""""""""
+
+            " Plug 'justinmk/vim-sneak'
+            " let g:sneak#label = 1
 
 
 call plug#end()
