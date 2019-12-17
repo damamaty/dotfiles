@@ -346,9 +346,16 @@ call plug#begin('~/.vim/plugged')
         " comment lines with one command
         Plug 'tpope/vim-commentary'
 
-        " insert pair chars in a good way
-        Plug 'jiangmiao/auto-pairs'
+        " python 'black' formatter
+        Plug 'psf/black'
+        let g:black_linelength = 120
+        let g:black_virtualenv = "~/.pyenv/versions/neovim3"
 
+        " ranger integration
+        Plug 'francoiscabrol/ranger.vim'
+        Plug 'rbgrouleff/bclose.vim'
+        let g:ranger_map_keys = 0
+        let g:ranger_command_override = 'ranger --cmd "set show_hidden=true"'
 
         """"""""""""""""""""""""""
         " Tmux
