@@ -129,11 +129,11 @@ call plug#begin('~/.vim/plugged')
     """"""""""""""""""""""""""
     " Appearence
     """"""""""""""""""""""""""
-        " set cursorline
+        set cursorline
 
         " set good colors
         if (v:version > 800 || has("nvim"))
-            set termguicolors
+            "set termguicolors
         endif
 
         " show the status line all the time
