@@ -324,6 +324,13 @@ call plug#begin('~/.vim/plugged')
         " customize start screen
         Plug 'mhinz/vim-startify'
 
+        " sexy scrolling
+        Plug 'psliwka/vim-smoothie'
+
+        " sexy window switching
+        Plug 'camspiers/animate.vim'
+        Plug 'camspiers/lens.vim'
+
         " open read-only files with sudo
         Plug 'lambdalisue/suda.vim'
         let g:suda_smart_edit = 1
