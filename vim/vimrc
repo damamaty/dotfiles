@@ -356,6 +356,11 @@ call plug#begin('~/.vim/plugged')
         let g:black_linelength = 120
         let g:black_virtualenv = "~/.pyenv/versions/neovim3"
 
+        " highlight word under cursor
+        Plug 'RRethy/vim-illuminate'
+        " hi illuminatedWord cterm=underline gui=underline
+        " hi illuminatedWord guibg=#ff00ff ctermbg=1
+
         " ranger integration
         Plug 'francoiscabrol/ranger.vim'
         Plug 'rbgrouleff/bclose.vim'
