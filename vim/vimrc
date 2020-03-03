@@ -433,20 +433,6 @@ call plug#begin('~/.vim/plugged')
             let g:DevIconsEnableFolderExtensionPatternMatching = 1
 
         """"""""""""""""""""""""""
-        " Fugitive
-        """"""""""""""""""""""""""
-
-            Plug 'tpope/vim-fugitive'
-            " Plug 'tpope/vim-rhubarb' " github extension for fugitive
-
-            nmap <silent> <leader>gs :Gstatus<cr>
-            nmap <leader>ge :Gedit<cr>
-            nmap <silent><leader>gr :Gread<cr>
-            nmap <silent><leader>gb :Gblame<cr>
-
-            Plug 'sodapopcan/vim-twiggy'
-
-        """"""""""""""""""""""""""
         " Autocomplete, linting, etc
         """"""""""""""""""""""""""
             Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -540,9 +526,7 @@ call plug#begin('~/.vim/plugged')
         """"""""""""""""""""""""""
         " Other
         """"""""""""""""""""""""""
-            Plug 'junegunn/gv.vim'
-            Plug 'tommcdo/vim-fubitive'
-            Plug 'moll/vim-bbye'
+
 
         """"""""""""""""""""""""""
         " Try
@@ -551,6 +535,23 @@ call plug#begin('~/.vim/plugged')
             " Plug 'justinmk/vim-sneak'
             " let g:sneak#label = 1
 
+            " Plug 'moll/vim-bbye' " replace bufkil?
+
+            """"""""""""""""""""""""""
+            " Fugitive
+            """"""""""""""""""""""""""
+
+                " Plug 'tpope/vim-fugitive'
+                " Plug 'tpope/vim-rhubarb' " github extension for fugitive
+
+                " nmap <silent> <leader>gs :Gstatus<cr>
+                " nmap <leader>ge :Gedit<cr>
+                " nmap <silent><leader>gr :Gread<cr>
+                " nmap <silent><leader>gb :Gblame<cr>
+
+                " Plug 'sodapopcan/vim-twiggy'
+                " Plug 'junegunn/gv.vim'
+                " Plug 'tommcdo/vim-fubitive'
 
 call plug#end()
 
