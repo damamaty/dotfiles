@@ -368,6 +368,7 @@ call plug#begin('~/.vim/plugged')
             Plug 'tmux-plugins/vim-tmux-focus-events'
             Plug 'christoomey/vim-tmux-navigator'
             Plug 'tmux-plugins/vim-tmux'
+            Plug 'melonmanchan/vim-tmux-resizer'
 
         """"""""""""""""""""""""""
         " FZF
