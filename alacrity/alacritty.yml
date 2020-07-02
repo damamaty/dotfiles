@@ -278,7 +278,9 @@ tabspaces: 8
 font:
   # Normal (roman) font face
   normal:
-    family: FuraCode Nerd Font
+    # family: FuraCode Nerd Font
+    # family: Monoid
+    family: Monoid Nerd Font
   #  #
   #  # Default:
   #  #   - (macOS) Menlo
