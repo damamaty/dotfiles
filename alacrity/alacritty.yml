@@ -168,7 +168,7 @@ schemes:
 # Visual Bell
 # ...
 shell:
-  program: /bin/bash
+  program: /bin/zsh
   args:
     - --login
     - -c
