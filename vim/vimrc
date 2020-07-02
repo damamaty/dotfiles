@@ -565,7 +565,11 @@ hi InactiveWindow ctermbg=235 guibg=#282828
 hi ActiveWindow ctermbg=234 guibg=#1d2021
 set winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
 
+" au VimEnter,WinEnter,BufEnter,BufWinEnter,FocusGained * setlocal winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
+" au VimLeave,WinLeave,BufLeave,BufWinLeave,FocusLost * setlocal winhighlight=Normal:InactiveWindow,NormalNC:InactiveWindow
+
+" BufWinLeave triggers on popups and doesn't revert
 au VimEnter,WinEnter,BufEnter,BufWinEnter,FocusGained * setlocal winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
-au VimLeave,WinLeave,BufLeave,BufWinLeave,FocusLost * setlocal winhighlight=Normal:InactiveWindow,NormalNC:InactiveWindow
+au VimLeave,WinLeave,BufLeave,FocusLost * setlocal winhighlight=Normal:InactiveWindow,NormalNC:InactiveWindow
 
 " vim:set foldmethod=marker foldlevel=0
