@@ -39,7 +39,7 @@ call plug#begin('~/.vim/plugged')
     nnoremap Q <nop>
 
     " hide search highlighting
-    nnoremap <silent> <CR> :nohlsearch<CR><C-L>
+    nnoremap <silent> <CR> :nohlsearch<CR>:call SearchantStop()<CR><C-L>
 
     nnoremap <leader>o o<Esc>
     nnoremap <leader>O O<Esc>
@@ -52,9 +52,21 @@ call plug#begin('~/.vim/plugged')
     " " Reload vimr configuration file
     nnoremap <leader>vr :source $MYVIMRC<CR>
 
-""""""""""""""""""""""""""""""
-"" General Options
-""""""""""""""""""""""""""""""
+    :imap <A-BS> <C-W>
+    :nmap <A-BS> <C-W>
+
+    :nmap <Left> <C-W>W
+    :nmap <Right> <C-W>w
+    " :nmap <Right> <C-W><C-S-W>
+    ":TmuxNavigateLeft<cr>
+    " :nmap <Up> :TmuxNavigateUp<cr>
+    " :nmap <Right> :TmuxNavigateRight<cr>
+    " :nmap <Down> :TmuxNavigateDown<cr>
+
+
+"""""""""""""""""""""""""""""
+" General Options
+"""""""""""""""""""""""""""""
     " explicitly tell vim that the terminal supports 256 colors
     set t_Co=256
 
@@ -66,6 +78,7 @@ call plug#begin('~/.vim/plugged')
 
     " set X lines to the cursors - when moving vertical
     set scrolloff=7
+    set scrolloff=999
 
     set encoding=UTF-8
 
@@ -126,57 +139,64 @@ call plug#begin('~/.vim/plugged')
     let g:python_host_prog = "~/.pyenv/versions/neovim2/bin/python"
     let g:python3_host_prog = "~/.pyenv/versions/neovim3/bin/python"
 
+    vnoremap <silent> . :normal .<CR>
+
+    " Run macros
+    nnoremap <silent> <F2> @q
+    nnoremap <silent> <F3> @@
+
+
     """"""""""""""""""""""""""
     " Appearence
     """"""""""""""""""""""""""
-        set cursorline
+        " set cursorline
 
         " set good colors
-        if (v:version > 800 || has("nvim"))
-            "set termguicolors
-        endif
+        " if (v:version > 800 || has("nvim"))
+            set termguicolors
+        " endif
 
-        " show the status line all the time
-        set laststatus=2
+       " show the status line all the time
+       set laststatus=2
 
-        " set terminal title
-        set title
+       " set terminal title
+       set title
 
-        " show vertical rules
-        set colorcolumn=120
+       " show vertical rules
+       set colorcolumn=120
 
-        " open new split panes to right and bottom, which feels more natural than Vim’s default:
-        set splitbelow
-        set splitright
+       " open new split panes to right and bottom, which feels more natural than Vim’s default:
+       set splitbelow
+       set splitright
 
-        " show line numbers
-        set number
+       " show line numbers
+       set number
 
-        " numbers relative to the current position
-        " set relativenumber
+       " numbers relative to the current position
+       " set relativenumber
 
-        " highlight syntax
-        syntax on
+       " highlight syntax
+       syntax on
 
-        " show incomplete commands
-        set showcmd
+       " show incomplete commands
+       set showcmd
 
-        " don't show which mode
-        set noshowmode
+       " don't show which mode
+       set noshowmode
 
-        " command bar height
-        set cmdheight=1
+       " command bar height
+       set cmdheight=1
 
-        " show matching braces
-        set showmatch
+       " show matching braces
+       set showmatch
 
-        " how many tenths of a second to blink when matching brackets
-        set mat=2
+       " how many tenths of a second to blink when matching brackets
+       set mat=2
 
-        " always show left-side bar (for git, linters, etc)
-        if (v:version > 800 || has("nvim"))
-            set signcolumn=yes
-        endif
+       " always show left-side bar (for git, linters, etc)
+       if (v:version > 800 || has("nvim"))
+           set signcolumn=yes
+       endif
 
     """"""""""""""""""""""""""
     " Tab control
@@ -202,6 +222,10 @@ call plug#begin('~/.vim/plugged')
         " expand tabs
         set expandtab
 
+        " https://stackoverflow.com/questions/19320747/prevent-vim-from-indenting-line-when-typing-a-colon-in-python
+        autocmd FileType python setlocal indentkeys-=<:>
+        autocmd FileType python setlocal indentkeys-=:
+
         " enable language specific indent
         filetype plugin indent on
     """"""""""""""""""""""""""
@@ -212,7 +236,9 @@ call plug#begin('~/.vim/plugged')
         set wrap
 
         " wrap lines when coming within n characters from side
-        set wrapmargin=8
+        set wrapmargin=0
+
+        set formatoptions-=t
 
         " set soft wrapping
         set linebreak
@@ -267,6 +293,27 @@ call plug#begin('~/.vim/plugged')
     " Custom functions
     """"""""""""""""""""""""""
 
+        func! ToggleBG()
+            let &background = ( &background == "dark"? "light" : "dark" )
+            if &background == 'dark'
+                hi InactiveWindow ctermbg=235 guibg=#282828
+                hi ActiveWindow ctermbg=234 guibg=#1d2021
+
+                set winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
+
+                au VimEnter,WinEnter,BufEnter,BufWinEnter,FocusGained * setlocal winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
+                au VimLeave,WinLeave,BufLeave,FocusLost * setlocal winhighlight=Normal:InactiveWindow,NormalNC:InactiveWindow
+            else
+                hi InactiveWindow ctermbg=229 guibg=#fbf1c7
+                hi ActiveWindow ctermbg=230 guibg=#f9f5d7
+
+                set winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
+
+                au VimEnter,WinEnter,BufEnter,BufWinEnter,FocusGained * setlocal winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
+                au VimLeave,WinLeave,BufLeave,FocusLost * setlocal winhighlight=Normal:InactiveWindow,NormalNC:InactiveWindow
+            endif
+        endfun
+
         " trim trailing whitespaces on save
         func! TrimWhitespace()
             let l:save = winsaveview()
@@ -299,48 +346,27 @@ call plug#begin('~/.vim/plugged')
     """"""""""""""""""""""""""
     " Plugins
     """"""""""""""""""""""""""
+        " Disable netrw
+        let loaded_netrwPlugin = 1
 
-        " color scheme
-        Plug 'morhetz/gruvbox'
-        let g:gruvbox_italic = 1
+        " use closest .git dir as root
+        Plug 'airblade/vim-rooter'
 
-        " status bar
-        Plug 'vim-airline/vim-airline'
-        Plug 'vim-airline/vim-airline-themes'
-
-        let g:airline_theme='gruvbox'
-        let g:airline_powerline_fonts = 1
-        let g:airline#extensions#tabline#enabled = 1
-        let g:airline#extensions#tabline#show_tab_type = 1
-        " let g:airline#extensions#tabline#show_splits = 1 "enable/disable displaying open splits per tab (only when tabs are opened). >
-        let g:airline#extensions#tabline#show_buffers = 1 " enable/disable displaying buffers with a single tab
-        " let g:airline#extensions#tabline#tab_nr_type = 1 " tab number
-        " let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
-        let g:airline#extensions#coc#enabled = 1
-        let g:airline#extensions#coc#error_symbol = 'E:'
-        let g:airline#extensions#coc#warning_symbol = 'W:'
-        let g:airline#extensions#coc#stl_format_err = '%E{[%e(#%fe)]}'
-        let g:airline#extensions#coc#stl_format_warn = '%W{[%w(#%fw)]}'
-
-        " customize start screen
-        Plug 'mhinz/vim-startify'
-
-        " sexy scrolling
-        Plug 'psliwka/vim-smoothie'
-
-        " sexy window switching
-        Plug 'camspiers/animate.vim'
-        Plug 'camspiers/lens.vim'
+        " highlight search under cursor
+        " Plug 'timakro/vim-searchant'
+        " autocmd CursorMoved * call SearchantStop()
+        function SearchantStop()
+            " :execute "normal \<Plug>SearchantStop"
+        endfunction
 
         " open read-only files with sudo
         Plug 'lambdalisue/suda.vim'
         let g:suda_smart_edit = 1
 
+
         " indent text objects
         Plug 'michaeljsmith/vim-indent-object'
 
-        " more funny (no) general text objects
-        Plug 'wellle/targets.vim'
 
         " and even more text objects (and motions) for python
         Plug 'jeetsukumaran/vim-pythonsense'
@@ -352,7 +378,7 @@ call plug#begin('~/.vim/plugged')
         Plug 'tpope/vim-commentary'
 
         " python 'black' formatter
-        Plug 'psf/black'
+        Plug 'psf/black', { 'tag': '*' }
         let g:black_linelength = 120
         let g:black_virtualenv = "~/.pyenv/versions/neovim3"
 
@@ -367,14 +393,77 @@ call plug#begin('~/.vim/plugged')
         let g:ranger_map_keys = 0
         let g:ranger_command_override = 'ranger --cmd "set show_hidden=true"'
 
-        """"""""""""""""""""""""""
-        " Tmux
-        """"""""""""""""""""""""""
+       """"""""""""""""""""""""""
+       " Text utils
+       """"""""""""""""""""""""""
+       " modern surround
+       Plug 'machakann/vim-sandwich'
 
-            Plug 'tmux-plugins/vim-tmux-focus-events'
-            Plug 'christoomey/vim-tmux-navigator'
-            Plug 'tmux-plugins/vim-tmux'
-            Plug 'melonmanchan/vim-tmux-resizer'
+       " more funny (no) general text objects
+       Plug 'wellle/targets.vim'
+
+       """"""""""""""""""""""""""
+       " Appearence
+       """"""""""""""""""""""""""
+
+       " color scheme
+       " Plug 'morhetz/gruvbox'
+       " let g:gruvbox_italic = 1
+       " let g:gruvbox_contrast_dark = 'hard'
+       " let g:gruvbox_contrast_light = 'hard'
+       Plug 'Rigellute/shades-of-purple.vim'
+       let g:shades_of_purple_airline = 1
+
+       " customize start screen
+       Plug 'mhinz/vim-startify'
+
+       " status bar
+       Plug 'vim-airline/vim-airline'
+       Plug 'vim-airline/vim-airline-themes'
+
+       " let g:airline_theme='gruvbox'
+       let g:airline_theme='shades_of_purple'
+       let g:airline_powerline_fonts = 1
+       let g:airline#extensions#tabline#enabled = 1
+       let g:airline#extensions#tabline#show_tab_type = 1
+       " let g:airline#extensions#tabline#show_splits = 1 "enable/disable displaying open splits per tab (only when tabs are opened). >
+       let g:airline#extensions#tabline#show_buffers = 1 " enable/disable displaying buffers with a single tab
+       " let g:airline#extensions#tabline#tab_nr_type = 1 " tab number
+       " let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+       let g:airline#extensions#coc#enabled = 1
+       let g:airline#extensions#coc#error_symbol = 'E:'
+       let g:airline#extensions#coc#warning_symbol = 'W:'
+       let g:airline#extensions#coc#stl_format_err = '%E{[%e(#%fe)]}'
+       let g:airline#extensions#coc#stl_format_warn = '%W{[%w(#%fw)]}'
+
+       " sexy scrolling
+       " Plug 'psliwka/vim-smoothie'
+
+       " sexy window switching
+       " Plug 'camspiers/animate.vim'
+       " Plug 'camspiers/lens.vim'
+
+       """"""""""""""""""""""""""
+       " Tmux
+       """"""""""""""""""""""""""
+
+           Plug 'tmux-plugins/vim-tmux-focus-events'
+           Plug 'christoomey/vim-tmux-navigator'
+           Plug 'tmux-plugins/vim-tmux'
+           Plug 'melonmanchan/vim-tmux-resizer'
+
+           let g:tmux_navigator_no_mappings = 1
+           nnoremap <silent> <M-h> :TmuxNavigateLeft<cr>
+           nnoremap <silent> <M-j> :TmuxNavigateDown<cr>
+           nnoremap <silent> <M-k> :TmuxNavigateUp<cr>
+           nnoremap <silent> <M-l> :TmuxNavigateRight<cr>
+
+           let g:tmux_resizer_no_mappings = 1
+
+           nnoremap <M-H> :TmuxResizeLeft<cr>
+           nnoremap <M-J> :TmuxResizeDown<cr>
+           nnoremap <M-K> :TmuxResizeUp<cr>
+           nnoremap <M-L> :TmuxResizeRight<cr>
 
         """"""""""""""""""""""""""
         " FZF
@@ -409,22 +498,28 @@ call plug#begin('~/.vim/plugged')
                 call nvim_open_win(buf, v:true, opts)
             endfunction
 
+
+            nmap <silent> <leader>T :Files<cr>
+            nnoremap <silent> <C-g> :Files<CR>
+
             if isdirectory(".git")
                 " if in a git project, use :GFiles
                 nmap <silent> <leader>t :GitFiles --cached --others --exclude-standard<cr>
+                nmap <silent> <C-p> :GitFiles --cached --others --exclude-standard<cr>
             else
                 " otherwise, use :FZF
                 nmap <silent> <leader>t :FZF<cr>
+                nmap <silent> <C-p> :FZF<cr>
             endif
 
             nmap <silent> <leader>b :Buffers<cr>
 
-            command! -bang -nargs=* Rg
-            \ call fzf#vim#grep(
-            \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
-            \   <bang>0 ? fzf#vim#with_preview('up:60%')
-            \           : fzf#vim#with_preview('right:60%'),
-            \   <bang>0)
+            " command! -bang -nargs=* Rg
+            " \ call fzf#vim#grep(
+            " \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+            " \   <bang>0 ? fzf#vim#with_preview('up:60%')
+            " \           : fzf#vim#with_preview('right:60%'),
+            " \   <bang>0)
 
         """"""""""""""""""""""""""
         " DevIcons
@@ -560,16 +655,31 @@ call plug#begin('~/.vim/plugged')
 
 call plug#end()
 
-colorscheme gruvbox
-hi InactiveWindow ctermbg=235 guibg=#282828
-hi ActiveWindow ctermbg=234 guibg=#1d2021
+" colorscheme gruvbox
+" autocmd vimenter * colorscheme gruvbox
+
+" hi InactiveWindow ctermbg=235 guibg=#282828
+" hi ActiveWindow ctermbg=234 guibg=#1d2021
+colorscheme shades_of_purple
+hi InactiveWindow ctermbg=235 guibg=#2D2B55
+hi ActiveWindow ctermbg=234 guibg=#1E1E3F
+hi ColorColumn  guibg=#2D2B55
+
+" hi LineNr ctermfg=140 ctermbg=235 guifg=#A599E9 guibg=#28284E
 set winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
 
-" au VimEnter,WinEnter,BufEnter,BufWinEnter,FocusGained * setlocal winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
-" au VimLeave,WinLeave,BufLeave,BufWinLeave,FocusLost * setlocal winhighlight=Normal:InactiveWindow,NormalNC:InactiveWindow
+" " au VimEnter,WinEnter,BufEnter,BufWinEnter,FocusGained * setlocal winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
+" " au VimLeave,WinLeave,BufLeave,BufWinLeave,FocusLost * setlocal winhighlight=Normal:InactiveWindow,NormalNC:InactiveWindow
 
-" BufWinLeave triggers on popups and doesn't revert
+" " BufWinLeave triggers on popups and doesn't revert
 au VimEnter,WinEnter,BufEnter,BufWinEnter,FocusGained * setlocal winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
 au VimLeave,WinLeave,BufLeave,FocusLost * setlocal winhighlight=Normal:InactiveWindow,NormalNC:InactiveWindow
+
+" au VimEnter,WinEnter,BufEnter,BufWinEnter,FocusGained * " au VimLeave,WinLeave,BufLeave,FocusLost * setlocal winhighlight=Normal:InactiveWindow,NormalNC:InactiveWindow
+" au VimEnter,WinEnter,BufEnter,BufWinEnter,FocusGained * setlocal winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
+" au VimLeave,WinLeave,BufLeave,FocusLost * setlocal winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
+
+" hi Search guibg=red guifg=black
+" hi SearchCurrent guibg=#00ff00
 
 " vim:set foldmethod=marker foldlevel=0

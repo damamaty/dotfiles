@@ -89,7 +89,7 @@ schemes:
     # Bright colors
     bright:
       black: "0x5C5C61"
-      red: "0xEC3A37F5"
+      red: "0xEC3A37"
       green: "0x3AD900"
       yellow: "0xFAD000"
       blue: "0x6943FF"
@@ -171,10 +171,10 @@ shell:
   program: /bin/zsh
   args:
     - --login
-    - -c
-    - 'tmux -u attach -t TMUX || tmux -u new -s TMUX'
+    # - -c
+    # - 'tmux -u attach -t TMUX || tmux -u new -s TMUX'
 
-colors: *dark
+colors: *purple
 
 
 # Any items in the `env` entry below will be added as
@@ -190,6 +190,9 @@ colors: *dark
   #TERM: xterm-256color
 
 window:
+  # Allow terminal applications to change Alacritty's window title.
+  dynamic_title: true
+
   # Window dimensions (changes require restart)
   #
   # Specified in number of columns/lines, not pixels.
@@ -262,9 +265,6 @@ scrolling:
   #
   # Specifying `0` will disable faux scrolling.
 
-  # Scroll to the bottom when new text is written to the terminal.
-  auto_scroll: false
-
 # Spaces per Tab (changes require restart)
 #
 # This setting defines the width of a tab in cells.
@@ -272,7 +272,6 @@ scrolling:
 # Some applications, like Emacs, rely on knowing about the width of a tab.
 # To prevent unexpected behavior in these applications, it's also required to
 # change the `it` value in terminfo when altering this setting.
-tabspaces: 8
 
 # Font configuration (changes require restart)
 font:
@@ -280,16 +279,19 @@ font:
   normal:
     # family: FuraCode Nerd Font
     # family: Monoid
-    family: Monoid Nerd Font
+    # family: monospace
+    # family: Andal
+    # family: mononoki Nerd Font
+    # family: monofur Nerd Font Complete Mono
+    family: Monofur Nerd Font
   #  #
   #  # Default:
   #  #   - (macOS) Menlo
   #  #   - (Linux) monospace
   #  #   - (Windows) Consolas
-  #  #family: monospace
 
   #  # The `style` can be specified to pick a specific face.
-    style: Regular
+    style: Book
 
   # Bold font face
   #bold:
@@ -314,7 +316,7 @@ font:
     #style: Italic
 
   # Point size
-  size: 11.0
+  size: 14
 
   # Offset is the extra space around each character. `offset.y` can be thought of
   # as modifying the line spacing, and `offset.x` as modifying the letter spacing.
@@ -370,7 +372,7 @@ draw_bold_text_with_bright_colors: true
 #   - Linear
 #
 # Specifying a `duration` of `0` will disable the visual bell.
-visual_bell:
+bell:
   animation: EaseOutExpo
   duration: 0
   color: '0xffffff'
@@ -439,8 +441,6 @@ selection:
   # When set to `true`, selected text will be copied to the primary clipboard.
   save_to_clipboard: false
 
-# Allow terminal applications to change Alacritty's window title.
-dynamic_title: true
 cursor:
   # Cursor style
   #
@@ -638,6 +638,10 @@ key_bindings:
   - { key: K,        mods: Alt,     chars: "\x1bk"                       }
   - { key: H,        mods: Alt,     chars: "\x1bh"                       }
   - { key: L,        mods: Alt,     chars: "\x1bl"                       }
+  - { key: J,        mods: Alt|Shift,     chars: "\x1BJ"                    }
+  - { key: K,        mods: Alt|Shift,     chars: "\x1BK"                       }
+  - { key: H,        mods: Alt|Shift,     chars: "\x1BH"                       }
+  - { key: L,        mods: Alt|Shift,     chars: "\x1BL"                       }
   # https://github.com/alacritty/alacritty/issues/2017#issuecomment-581707489
   - { key: C,           mods: Alt,             chars: "\x1Bc"           }
   - { key: C,           mods: Alt|Shift,       chars: "\x1BC"           }
@@ -753,3 +757,4 @@ key_bindings:
   - { key: F11,      mods: Super,   chars: "\x1b[23;3~"                      }
   - { key: F12,      mods: Super,   chars: "\x1b[24;3~"                      }
   - { key: NumpadEnter,             chars: "\n"                              }
+  - { key: N,      mods: Command,            action: SpawnNewInstance }
