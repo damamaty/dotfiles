@@ -407,12 +407,12 @@ call plug#begin('~/.vim/plugged')
        """"""""""""""""""""""""""
 
        " color scheme
-       " Plug 'morhetz/gruvbox'
-       " let g:gruvbox_italic = 1
-       " let g:gruvbox_contrast_dark = 'hard'
-       " let g:gruvbox_contrast_light = 'hard'
-       Plug 'Rigellute/shades-of-purple.vim'
-       let g:shades_of_purple_airline = 1
+       Plug 'morhetz/gruvbox'
+       let g:gruvbox_italic = 1
+       let g:gruvbox_contrast_dark = 'hard'
+       let g:gruvbox_contrast_light = 'hard'
+       " Plug 'Rigellute/shades-of-purple.vim'
+       " let g:shades_of_purple_airline = 1
 
        " customize start screen
        Plug 'mhinz/vim-startify'
@@ -421,8 +421,8 @@ call plug#begin('~/.vim/plugged')
        Plug 'vim-airline/vim-airline'
        Plug 'vim-airline/vim-airline-themes'
 
-       " let g:airline_theme='gruvbox'
-       let g:airline_theme='shades_of_purple'
+       let g:airline_theme='gruvbox'
+       " let g:airline_theme='shades_of_purple'
        let g:airline_powerline_fonts = 1
        let g:airline#extensions#tabline#enabled = 1
        let g:airline#extensions#tabline#show_tab_type = 1
@@ -655,15 +655,15 @@ call plug#begin('~/.vim/plugged')
 
 call plug#end()
 
-" colorscheme gruvbox
+colorscheme gruvbox
 " autocmd vimenter * colorscheme gruvbox
 
-" hi InactiveWindow ctermbg=235 guibg=#282828
-" hi ActiveWindow ctermbg=234 guibg=#1d2021
-colorscheme shades_of_purple
-hi InactiveWindow ctermbg=235 guibg=#2D2B55
-hi ActiveWindow ctermbg=234 guibg=#1E1E3F
-hi ColorColumn  guibg=#2D2B55
+hi InactiveWindow ctermbg=235 guibg=#282828
+hi ActiveWindow ctermbg=234 guibg=#1d2021
+" colorscheme shades_of_purple
+" hi InactiveWindow ctermbg=235 guibg=#2D2B55
+" hi ActiveWindow ctermbg=234 guibg=#1E1E3F
+" hi ColorColumn  guibg=#2D2B55
 
 " hi LineNr ctermfg=140 ctermbg=235 guifg=#A599E9 guibg=#28284E
 set winhighlight=Normal:ActiveWindow,NormalNC:InactiveWindow
