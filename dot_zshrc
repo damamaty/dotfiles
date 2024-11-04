@@ -1,0 +1,51 @@
+PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+
+if [ -d "$HOME/.pyenv" ]; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
+
+if [ -d "$HOMEBREW_PREFIX/opt/nvm" ]; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
+    [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
+fi
+
+if [ -d "$HOMEBREW_PREFIX/opt/postgresql@16/bin" ]; then
+    export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+fi
+
+export PGHOST="127.0.0.1"
+export PGPORT="5432"
+
+
+alias cz=chezmoi
+alias vim=nvim
+alias cat='bat'
+alias ping='prettyping --nolegend'
+alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
+alias ls=eza
+
+if ! [ -x "$(command -v eza)" ]; then
+    alias ls='eza'
+    alias ld='eza -lD'
+    alias lf='eza -lf --color=always | grep -v /'
+    alias lh='eza -dl .* --group-directories-first'
+    alias ll='eza -al --group-directories-first'
+    # alias ls='eza -alf --color=always --sort=size | grep -v /'
+    alias lt='eza -al --sort=modified'
+fi
+
+alias preview="fzf --preview 'bat --color \"always\" {}'"
+
+export FZF_DEFAULT_OPTS="--bind='ctrl-o:execute(nvim {})+abort'"
+export EDITOR="nvim"
+
+source <(fzf --zsh)
+eval "$(starship init zsh)"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+ssh-add --apple-load-keychain -q
