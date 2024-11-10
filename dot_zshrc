@@ -49,3 +49,7 @@ eval "$(starship init zsh)"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 ssh-add --apple-load-keychain -q
+
+yoink() {
+    osascript -e "set the clipboard to (POSIX file \"$PWD/$1\")"
+}
