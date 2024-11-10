@@ -12,7 +12,7 @@ bindings = [
 
 
 [font]
-normal = { family = "Anonymous Pro", style = "Regular" }
+normal = { family = "AnonymicePro Nerd Font", style = "Regular" }
 size = 16
 
 # Colors
