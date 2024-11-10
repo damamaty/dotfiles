@@ -1,0 +1,47 @@
+[window]
+option_as_alt = "Both"
+
+[keyboard]
+
+bindings = [
+  { key = "h", mods = "Command", chars = "\u001bh"},
+  { key = "j", mods = "Command", chars = "\u001bj"},
+  { key = "k", mods = "Command", chars = "\u001bk"},
+  { key = "l", mods = "Command", chars = "\u001bl"}
+]
+
+
+[font]
+normal = { family = "Anonymous Pro", style = "Regular" }
+size = 16
+
+# Colors
+[colors]
+
+# Primary colors
+[colors.primary]
+background = "0x080c10"
+foreground = "0xd8dee9"
+
+# Normal colors
+[colors.normal]
+black = "0x2c2c3d"
+red = "0xff6e6e"
+green = "0x9ec875"
+yellow = "0xffa759"
+blue = "0x70a7d4"
+magenta = "0xd291e0"
+cyan = "0x96e0e0"
+white = "0xd8dee9"
+
+# Bright colors
+[colors.bright]
+black = "0x414166"
+red = "0xff8d8d"
+green = "0xb3d987"
+yellow = "0xffc57f"
+blue = "0x9bb3d3"
+magenta = "0xffa1ff"
+cyan = "0x9cd8d8"
+white = "0xffffff"
+
