@@ -100,6 +100,23 @@ cask "visual-studio-code"
 cask "vlc"
 cask "wezterm"
 cask "yandex-disk"
+mas "Bear", id: 1091189122
+mas "Bitwarden", id: 1352778147
+mas "FBReader", id: 1067172178
+mas "GarageBand", id: 682658836
+mas "iMovie", id: 408981434
+mas "Infuse", id: 1136220934
+mas "Just Press Record", id: 1033342465
+mas "lire", id: 1482527526
+mas "Noir", id: 1592917505
+mas "PDFgear", id: 6469021132
+mas "StopTheMadness Pro", id: 6471380298
+mas "Things", id: 904280696
+mas "UpNote", id: 1398373917
+mas "Windows App", id: 1295203466
+mas "Wipr", id: 1320666476
+mas "WireGuard", id: 1451685025
+mas "Xcode", id: 497799835
 vscode "ms-python.debugpy"
 vscode "ms-python.python"
 vscode "ms-python.vscode-pylance"
