@@ -145,7 +145,7 @@ vim.keymap.set('t', '<M-l>', '<C-\\><C-n>:TmuxNavigateRight<CR>', { silent = tru
 --- Keybindings --- Plugins --- Misc
 --- -------------------------------------------------------------------------------------------------------------------
 
-vim.keymap.set('n', '<leader>/', ':Commentary<CR>', { desc = 'Toggle Comment' })
+vim.keymap.set('', '<leader>/', ':Commentary<CR>', { desc = 'Toggle Comment' })
 vim.keymap.set('n', '<leader>g', ':LazyGit<CR>', { silent = true, desc = 'Open LazyGit' })
 
 --- -------------------------------------------------------------------------------------------------------------------
@@ -558,7 +558,7 @@ require("lazy").setup({
     -- https://github.com/echasnovski/mini.pick
   },
   install = { colorscheme = { "habamax" } },
-  checker = { enabled = true },
+  checker = { enabled = false },
 })
 
 --- -------------------------------------------------------------------------------------------------------------------
