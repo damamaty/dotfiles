@@ -1,10 +1,18 @@
 .DS_Store
 .CFUserTextEncoding
 .Trash
+TumarCSP
+tmux-client*.log
+CascadeProjects
 
 .arduinoIDE
 Yandex.Disk.localized
 
+.aider
+.aider.chat.history.md
+.aider.input.history
+.anydesk
+.cargo
 .pgpass
 .mc
 .matplotlib
@@ -35,6 +43,18 @@ Yandex.Disk.localized
 .terminfo
 .vscode
 .vim
+.vimrc
+.local
+.config/karabiner/*
+.config/qBittorrent
+.config/zed
+.config/rclone
+.config/nvim/lazy-lock.json
+.config/coc
+.config/chezmoi
+.config/htop
+.config/github-copilot
+.windsurf
 
 Applications
 Desktop
