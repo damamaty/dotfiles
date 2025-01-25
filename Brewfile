@@ -111,11 +111,14 @@ mas "Bear", id: 1091189122
 mas "Bitwarden", id: 1352778147
 mas "FBReader", id: 1067172178
 mas "GarageBand", id: 682658836
+mas "Hand Mirror", id: 1502839586
 mas "iMovie", id: 408981434
 mas "Infuse", id: 1136220934
 mas "Just Press Record", id: 1033342465
+mas "Klack", id: 6446206067
 mas "lire", id: 1482527526
 mas "Noir", id: 1592917505
+mas "PastePal", id: 1503446680
 mas "PDFgear", id: 6469021132
 mas "StopTheMadness Pro", id: 6471380298
 mas "Things", id: 904280696
