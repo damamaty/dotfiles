@@ -2,6 +2,7 @@ tap "homebrew/bundle"
 tap "homebrew/services"
 tap "sqitchers/sqitch"
 brew "xz"
+brew "aider"
 brew "bat"
 brew "bitwarden-cli"
 brew "bottom"
@@ -45,15 +46,16 @@ brew "nvm"
 brew "pam-reattach"
 brew "php"
 brew "postgresql@14"
-brew "postgresql@16"
+brew "postgresql@16", link: true
 brew "prettyping"
 brew "procs"
 brew "pyenv"
 brew "pyenv-virtualenv"
 brew "rclone"
 brew "ripgrep"
+brew "rust"
 brew "sd"
-brew "syncthing", restart_service: true
+brew "syncthing", restart_service: :changed
 brew "tldr"
 brew "tmux"
 brew "wget"
@@ -64,13 +66,13 @@ brew "sqitchers/sqitch/sqitch", args: ["with-postgres-support", "with-sqlite-sup
 cask "alacritty"
 cask "alfred"
 cask "appcleaner"
-cask "arc"
 cask "arduino-ide"
 cask "bettertouchtool"
 cask "bitwarden"
 cask "firefox"
 cask "font-anonymice-nerd-font"
 cask "font-anonymous-pro"
+cask "font-jetbrains-mono-nerd-font"
 cask "fork"
 cask "google-chrome"
 cask "hammerspoon"
@@ -105,6 +107,7 @@ cask "visual-studio-code"
 cask "vlc"
 cask "wezterm"
 cask "yandex-disk"
+cask "zed"
 mas "Balatro+", id: 6502451661
 cask "yandex-music"
 mas "Bear", id: 1091189122
@@ -118,6 +121,8 @@ mas "Just Press Record", id: 1033342465
 mas "Klack", id: 6446206067
 mas "lire", id: 1482527526
 mas "Noir", id: 1592917505
+mas "Notch Timer", id: 6477333821
+mas "Obsidian Web Clipper", id: 6720708363
 mas "PastePal", id: 1503446680
 mas "PDFgear", id: 6469021132
 mas "StopTheMadness Pro", id: 6471380298
@@ -127,6 +132,9 @@ mas "Windows App", id: 1295203466
 mas "Wipr", id: 1320666476
 mas "WireGuard", id: 1451685025
 mas "Xcode", id: 497799835
+vscode "ms-azuretools.vscode-docker"
 vscode "ms-python.debugpy"
 vscode "ms-python.python"
 vscode "ms-python.vscode-pylance"
+vscode "ms-vscode-remote.remote-containers"
+vscode "rooveterinaryinc.roo-cline"
