@@ -8,11 +8,18 @@ return {
   enable_tab_bar = false,
 
   -- Automatically attach to tmux on startup (or create a new session if none exists)
-  default_prog = { '/opt/homebrew/bin/tmux', 'new', '-A' },
+  {{ if eq .chezmoi.os "darwin" }}
+    default_prog = { '/opt/homebrew/bin/tmux', 'new', '-A' },
+  {{ else if eq .chezmoi.os "windows" }}
+    default_prog = { 'tmux', '-A' },
+  {{ end }}
+
+  {{ if eq .chezmoi.os "darwin" }}
     -- Set environment variables for tmux
-  set_environment_variables = {
-    PATH = "/opt/homebrew/bin:" .. os.getenv("PATH"),
-  },
+    set_environment_variables = {
+      PATH = "/opt/homebrew/bin:" .. os.getenv("PATH"),
+    },
+  {{ end }}
 
   -- Keyboard bindings
   keys = {
@@ -23,9 +30,19 @@ return {
   },
 
   -- Font settings
-  font = wezterm.font("JetBrainsMono Nerd Font", { weight = "Regular" }),
-  font_size = 17,
 
+  {{ if eq .chezmoi.os "darwin" }}
+    font = wezterm.font("JetBrainsMono Nerd Font", { weight = "Regular" }),
+  {{ else if eq .chezmoi.os "windows" }}
+    font = wezterm.font("Cascadia Code PL", { weight = "Regular" }),
+  {{ end }}
+
+  font_size = 17,
   -- Theme
   color_scheme = 'Gruvbox Dark (Gogh)'
+
+  {{ if eq .chezmoi.os "windows" }}
+    default_domain = 'WSL:Ubuntu',
+    window_close_confirmation = 'NeverPrompt'
+  {{ end }}
 }
