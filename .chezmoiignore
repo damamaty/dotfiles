@@ -7,6 +7,13 @@
 #
 {{- end -}}
 
+{{- if eq .machine "windows" }}
+**
+!.gitconfig
+!.wezterm.lua
+# 
+{{- end -}}
+
 .DS_Store
 .CFUserTextEncoding
 .Trash
