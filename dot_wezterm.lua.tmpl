@@ -27,6 +27,16 @@ return {
     { key = "j", mods = "CMD", action = wezterm.action.SendString "\x1bj" },
     { key = "k", mods = "CMD", action = wezterm.action.SendString "\x1bk" },
     { key = "l", mods = "CMD", action = wezterm.action.SendString "\x1bl" },
+    {
+      key = "Tab",
+      mods = "CTRL",
+      action = wezterm.action.SendString("\x20\x5d"), -- <space> + ]
+    },
+    {
+      key = "Tab",
+      mods = "SHIFT|CTRL",
+      action = wezterm.action.SendString("\x20\x5b"), -- <space> + [
+    },
   },
 
   -- Font settings
