@@ -4,6 +4,7 @@
 !.config
 !.config/nvim
 !.config/nvim/*
+!.gitconfig
 #
 {{- end -}}
 
@@ -11,7 +12,7 @@
 **
 !.gitconfig
 !.wezterm.lua
-# 
+#
 {{- end -}}
 
 .DS_Store

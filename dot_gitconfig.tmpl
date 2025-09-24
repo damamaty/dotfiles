@@ -1,0 +1,14 @@
+[core]
+	autocrlf = input
+	{{ if eq .chezmoi.os "windows" }}
+	sshCommand = 'C:\\Windows\\System32\\OpenSSH\\ssh.exe'
+	{{end}}
+[user]
+	email = damamaty@gmail.com
+	name = Dmitriy Kirichenko
+
+{{ if eq .chezmoi.os "darwin" }}
+[pager]
+       diff = diff-so-fancy | less --tabs=1,5 -RFX
+       show = diff-so-fancy | less --tabs=1,5 -RFX
+{{ end }}
