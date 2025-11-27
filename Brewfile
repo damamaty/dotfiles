@@ -115,6 +115,7 @@ cask "yandex-music"
 mas "Bear", id: 1091189122
 mas "Bitwarden", id: 1352778147
 mas "FBReader", id: 1067172178
+mas "Flow", id: 1423210932
 mas "GarageBand", id: 682658836
 mas "Hand Mirror", id: 1502839586
 mas "iMovie", id: 408981434
