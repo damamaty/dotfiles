@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# theme-switch — flip nvim+tmux+wezterm to a named theme
+# Usage:
+#   theme-switch              -> fzf picker
+#   theme-switch <name>       -> set explicitly
+#   theme-switch --next       -> cycle alphabetically
+#   theme-switch --list       -> print available themes
+set -euo pipefail
+
+THEMES_DIR="$HOME/.config/themes"
+STATE="$THEMES_DIR/current"
+
+list_themes() {
+    find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort
+}
+
+current_theme() {
+    [[ -f "$STATE" ]] && tr -d '[:space:]' < "$STATE" || echo "cyberdream"
+}
+
+apply_theme() {
+    local theme="$1"
+    local theme_dir="$THEMES_DIR/$theme"
+    if [[ ! -d "$theme_dir" ]]; then
+        echo "theme-switch: unknown theme '$theme'" >&2
+        echo "available:" >&2
+        list_themes | sed 's/^/  /' >&2
+        exit 2
+    fi
+
+    echo "$theme" > "$STATE"
+
+    # tmux: source the main conf so catppuccin re-renders the bar with new palette.
+    # Backgrounded so this script returns immediately when invoked from a tmux popup
+    # (otherwise source-file blocks the popup's shell until it finishes rendering).
+    if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+        ( tmux source-file "$HOME/.tmux.conf" >/dev/null 2>&1 & ) &
+    fi
+
+    # wezterm: touch the config file so wezterm's auto-reload picks it up
+    touch "$HOME/.wezterm.lua"
+
+    # nvim: each running instance watches ~/.config/themes/current via vim.uv.new_fs_event
+    # and re-applies on change, so we don't need to signal it here.
+
+    echo "theme: $theme"
+}
+
+cmd="${1:-}"
+case "$cmd" in
+    --list|-l)
+        list_themes
+        ;;
+    --next|-n)
+        themes=($(list_themes))
+        cur="$(current_theme)"
+        next=""
+        for i in "${!themes[@]}"; do
+            if [[ "${themes[$i]}" == "$cur" ]]; then
+                next="${themes[$(( (i + 1) % ${#themes[@]} ))]}"
+                break
+            fi
+        done
+        apply_theme "${next:-${themes[0]}}"
+        ;;
+    "")
+        if ! command -v fzf >/dev/null 2>&1; then
+            echo "fzf not found; pass a theme name explicitly" >&2
+            list_themes
+            exit 1
+        fi
+        cur="$(current_theme)"
+        picked="$(list_themes | fzf --prompt="theme> " --header="current: $cur" --height=15 --border --reverse)"
+        [[ -n "$picked" ]] && apply_theme "$picked"
+        ;;
+    -h|--help)
+        sed -n '2,7p' "$0" | sed 's/^# \?//'
+        ;;
+    *)
+        apply_theme "$cmd"
+        ;;
+esac

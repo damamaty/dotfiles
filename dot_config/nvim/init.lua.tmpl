@@ -106,20 +106,12 @@ vim.keymap.set('v', '.', ':normal .<CR>', { silent = true })
 -- vim.keymap.set('n', '<leader>b', '<Plug>(coc-format-selected)')
 
 --- -------------------------------------------------------------------------------------------------------------------
---- Keybindings --- Plugins --- codeium
---- -------------------------------------------------------------------------------------------------------------------
-
-vim.keymap.set('i', '<C-g>', function () return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
-vim.keymap.set('i', '<c-;>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true, silent = true })
-vim.keymap.set('i', '<c-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true, silent = true })
-vim.keymap.set('i', '<c-x>', function() return vim.fn['codeium#Clear']() end, { expr = true, silent = true })
-
---- -------------------------------------------------------------------------------------------------------------------
 --- Keybindings --- Plugins --- fzf-lua
 --- -------------------------------------------------------------------------------------------------------------------
 
 vim.keymap.set('n', '<leader>t', '<cmd>FzfLua files<CR>', { noremap = true, silent = true, desc = 'FzfLua Files' })
 vim.keymap.set('n', '<leader>r', '<cmd>FzfLua live_grep<CR>', { noremap = true, silent = true, desc = 'FzfLua Live Grep' })
+-- (theme picker <leader>fc and toggle <leader>l defined later, near the theme loader)
 
 vim.api.nvim_create_user_command('Files', 'FzfLua files', { desc = 'Search files with FzfLua' })
 vim.api.nvim_create_user_command('Rg', 'FzfLua live_grep', { desc = 'Live grep with FzfLua' })
@@ -389,6 +381,10 @@ require("lazy").setup({
     -- detect tabstop and shiftwidth automatically
     "tpope/vim-sleuth",
 
+    -- session tracking: writes/updates Session.vim so tmux-resurrect
+    -- (@resurrect-strategy-nvim 'session') can restore open files on reboot
+    "tpope/vim-obsession",
+
     -- comment lines with one command
     "tpope/vim-commentary",
 
@@ -423,11 +419,9 @@ require("lazy").setup({
     },
 
     -- highlight word under cursor
-    "RRethy/vim-illuminate",
+    --"RRethy/vim-illuminate",
 
-    -- Color scheme
-    "dasupradyumna/midnight.nvim",
-    "chriskempson/base16-vim",
+    -- Color schemes: cyberdream (main) + gruvbox (fallback); switched via ~/.local/bin/theme-switch
     {
         "ellisonleao/gruvbox.nvim",
         priority = 1000 ,
@@ -435,6 +429,18 @@ require("lazy").setup({
         opts = {
 
         }
+    },
+    {
+        "scottmckendry/cyberdream.nvim",
+        lazy = false,
+        priority = 1000,
+        opts = {
+            variant = "default",
+            transparent = true,  -- let wezterm's bg/blur show through
+            italic_comments = true,
+            terminal_colors = true,
+            cache = false,
+        },
     },
 
     {
@@ -921,11 +927,12 @@ require("lazy").setup({
     -- status bar
     {
         "vim-airline/vim-airline",
+        enabled = false, -- migrated to lualine; keeping the spec for easy revert
         dependencies = { "vim-airline/vim-airline-themes" },
         init = function()
-            -- Set the airline theme
+            -- Set the airline theme (toggled together with colorscheme by <leader>l)
             -- vim.g.airline_theme = 'base16_synth_midnight_dark'
-            vim.g.airline_theme = 'base16_gruvbox_dark_hard'
+            vim.g.airline_theme = 'dracula' -- closest match to cyberdream's purple/cyan vibe
 
             -- Enable powerline fonts
             vim.g.airline_powerline_fonts = 1
@@ -952,6 +959,131 @@ require("lazy").setup({
         end
     },
 
+    -- modern statusline + tabline (replaces airline) — slanted style, per
+    -- https://github.com/nvim-lualine/lualine.nvim/blob/master/examples/slanted-gaps.lua
+    {
+        "nvim-lualine/lualine.nvim",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        config = function()
+            local function process(sections)
+                for name, section in pairs(sections) do
+                    local is_left = name:sub(9, 10) < 'x'
+                    for id, comp in ipairs(section) do
+                        if type(comp) ~= 'table' then
+                            comp = { comp }
+                            section[id] = comp
+                        end
+                        comp.separator = is_left and { right = '' } or { left = '' }
+                    end
+                end
+                return sections
+            end
+
+            -- Build a cyberdream-flavored lualine theme with DIFFERENT bgs per
+            -- section so slanted separators are actually visible. The plugin's
+            -- own cyberdream lualine theme uses one color for everything which
+            -- looks fine without slants but invisible with them.
+            local function cyberdream_theme()
+                local p = {
+                    bg     = "#16181a",
+                    surf   = "#1e2124",
+                    over   = "#3c4048",
+                    fg     = "#ffffff",
+                    grey   = "#7b8496",
+                    purple = "#bd5eff",
+                    pink   = "#ff5ef1",
+                    green  = "#5eff6c",
+                    yellow = "#f1ff5e",
+                    red    = "#ff6e5e",
+                    cyan   = "#5ef1ff",
+                }
+                return {
+                    normal = {
+                        a = { fg = p.bg, bg = p.purple, gui = "bold" },
+                        b = { fg = p.fg, bg = p.over },
+                        c = { fg = p.fg, bg = p.surf },
+                        x = { fg = p.fg, bg = p.surf },
+                        y = { fg = p.fg, bg = p.over },
+                        z = { fg = p.bg, bg = p.purple, gui = "bold" },
+                    },
+                    insert   = { a = { fg = p.bg, bg = p.green,  gui = "bold" } },
+                    visual   = { a = { fg = p.bg, bg = p.pink,   gui = "bold" } },
+                    replace  = { a = { fg = p.bg, bg = p.red,    gui = "bold" } },
+                    command  = { a = { fg = p.bg, bg = p.yellow, gui = "bold" } },
+                    terminal = { a = { fg = p.bg, bg = p.cyan,   gui = "bold" } },
+                    inactive = {
+                        a = { fg = p.grey, bg = p.surf },
+                        b = { fg = p.grey, bg = p.surf },
+                        c = { fg = p.grey, bg = p.surf },
+                    },
+                }
+            end
+
+            -- Patch ANY loaded theme: replace NONE/nil bgs with overlay color,
+            -- and ensure section c has a darker bg than section b for slant visibility.
+            local function patch_theme(theme)
+                if type(theme) ~= 'table' then return theme end
+                for _, mode in pairs(theme) do
+                    if type(mode) == 'table' then
+                        for _, section in pairs(mode) do
+                            if type(section) == 'table'
+                                and (section.bg == "NONE" or section.bg == nil) then
+                                section.bg = "#1e2124"
+                            end
+                        end
+                    end
+                end
+                return theme
+            end
+
+            local function resolve_theme()
+                local cs = vim.g.colors_name or ''
+                if cs == 'cyberdream' then
+                    return cyberdream_theme()
+                end
+                if cs ~= '' then
+                    local ok, theme = pcall(require, 'lualine.themes.' .. cs)
+                    if ok and type(theme) == 'table' then return patch_theme(theme) end
+                end
+                return 'auto'
+            end
+
+            _G.lualine_setup = function()
+                require('lualine').setup({
+                    options = {
+                        theme = resolve_theme(),
+                        icons_enabled = true,
+                        globalstatus = true,
+                        section_separators = { left = '', right = '' },
+                        component_separators = '',
+                    },
+                    sections = process({
+                        lualine_a = { 'mode' },
+                        lualine_b = { 'branch', 'diff', 'diagnostics' },
+                        lualine_c = { { 'filename', path = 1 } },
+                        lualine_x = { 'encoding', 'fileformat', 'filetype' },
+                        lualine_y = { 'progress' },
+                        lualine_z = { 'location' },
+                    }),
+                    tabline = {
+                        lualine_a = process({
+                            lualine_a = { { 'tabs', mode = 2, max_length = vim.o.columns } },
+                        }).lualine_a,
+                    },
+                    extensions = { 'fzf', 'lazy', 'neo-tree', 'fugitive' },
+                })
+            end
+
+            _G.lualine_setup()
+
+            vim.api.nvim_create_autocmd("ColorScheme", {
+                callback = function() vim.schedule(_G.lualine_setup) end,
+            })
+        end,
+    },
+
+    
+    
     { -- Useful plugin to show you pending keybinds.
         'folke/which-key.nvim',
         event = 'VimEnter', -- Sets the loading event to 'VimEnter'
@@ -1011,10 +1143,6 @@ require("lazy").setup({
 
 
     {
-	  'Exafunction/codeium.vim',
-      event = 'BufEnter',
-	},
-    {
         "ibhagwan/fzf-lua",
         -- optional for icon support
         dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -1023,7 +1151,8 @@ require("lazy").setup({
 
             fzf.setup({
                 -- "fzf-vim",             -- fzf-vim commands like :Files, :Buffers, etc
-                winopts = { preview = { default = "bat" } }
+                fzf_colors = true, -- derive fzf list colors from current Neovim highlight groups
+                winopts = { preview = { default = "builtin" } }, -- nvim-rendered preview matches the active colorscheme
             })
         end
     },
@@ -1167,8 +1296,75 @@ vim.api.nvim_create_autocmd('FileChangedShell', {
   callback = process_file_changed_shell,
 })
 
-vim.o.background = "dark" -- or "light" for light mode
-vim.cmd([[colorscheme gruvbox]])
+-- ───── Theme loader: reads ~/.config/themes/current and dofiles its nvim.lua ─────
+-- Also exposes a global module so the theme-switch script can hot-reload running nvims.
+local themes_dir = vim.fn.expand("~/.config/themes")
+local state_file = themes_dir .. "/current"
+
+local themes = {}
+
+function themes.read_current()
+  local f = io.open(state_file, "r")
+  if not f then return "cyberdream" end
+  local name = (f:read("*l") or "cyberdream"):gsub("%s+", "")
+  f:close()
+  return name
+end
+
+function themes.apply_current()
+  local name = themes.read_current()
+  local theme_lua = themes_dir .. "/" .. name .. "/nvim.lua"
+  if vim.fn.filereadable(theme_lua) == 1 then
+    local ok, err = pcall(dofile, theme_lua)
+    if not ok then
+      vim.notify("theme " .. name .. " failed: " .. tostring(err), vim.log.levels.ERROR)
+      return
+    end
+    -- Re-setup lualine synchronously so its theme bgs are patched immediately
+    -- (the ColorScheme autocmd is fragile under lazy plugin loading order).
+    if _G.lualine_setup then
+      pcall(_G.lualine_setup)
+    end
+    vim.notify("theme: " .. name, vim.log.levels.INFO)
+  end
+end
+
+package.loaded.themes = themes  -- so `:lua require("themes").apply_current()` works from RPC
+
+-- Apply current theme on startup
+themes.apply_current()
+
+-- Watch the state file: if it changes, re-apply (hot-reload from theme-switch)
+local watcher = vim.uv.new_fs_event()
+if watcher then
+  watcher:start(state_file, {}, vim.schedule_wrap(function()
+    themes.apply_current()
+    -- fs_event sometimes stops after one fire on rewrite; restart it
+    pcall(watcher.stop, watcher)
+    pcall(watcher.start, watcher, state_file, {}, vim.schedule_wrap(function()
+      themes.apply_current()
+    end))
+  end))
+end
+
+-- <leader>l: toggle cyberdream <-> gruvbox via theme-switch
+vim.keymap.set('n', '<leader>l', function()
+  local cur = themes.read_current()
+  local target = (cur == 'gruvbox') and 'cyberdream' or 'gruvbox'
+  vim.fn.system({ 'theme-switch', target })
+end, { noremap = true, silent = true, desc = 'Toggle cyberdream/gruvbox' })
+
+-- <leader>fc: fzf-pick from all available themes (uses theme-switch under the hood)
+vim.keymap.set('n', '<leader>fc', function()
+  local list = {}
+  for name, t in vim.fs.dir(themes_dir) do
+    if t == 'directory' then table.insert(list, name) end
+  end
+  table.sort(list)
+  vim.ui.select(list, { prompt = 'Theme:' }, function(choice)
+    if choice then vim.fn.system({ 'theme-switch', choice }) end
+  end)
+end, { noremap = true, silent = true, desc = 'Pick theme' })
 
 vim.opt.foldenable = false
 vim.opt.foldmethod = 'expr'

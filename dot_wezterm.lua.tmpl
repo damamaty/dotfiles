@@ -1,8 +1,25 @@
 local wezterm = require("wezterm")
 
-return {
+-- Read active theme from ~/.config/themes/current and load its wezterm.lua
+-- (falls back to gruvbox when the themes dir isn't deployed, e.g. on windows)
+local function load_theme()
+	local themes_dir = wezterm.home_dir .. "/.config/themes"
+	local theme = "cyberdream"
+	local f = io.open(themes_dir .. "/current", "r")
+	if f then
+		theme = (f:read("*l") or "cyberdream"):gsub("%s+", "")
+		f:close()
+	end
+	local ok, theme_cfg = pcall(dofile, themes_dir .. "/" .. theme .. "/wezterm.lua")
+	if ok and type(theme_cfg) == "table" then
+		return theme_cfg
+	end
+	return { color_scheme = "Gruvbox Dark (Gogh)" }
+end
+
+local config = {
 	-- Window settings
-	use_ime = true, -- Enable IME support (similar to option_as_alt = "Both" in Alacritty)
+	use_ime = true,
 
 	-- Hide the tab bar
 	enable_tab_bar = false,
@@ -39,11 +56,19 @@ return {
 {{ if eq .chezmoi.os "darwin" }}	font = wezterm.font("Iosevka Nerd Font Mono", { weight = "Bold" }),
 {{ else if eq .chezmoi.os "windows" }}	font = wezterm.font("Cascadia Code PL", { weight = "Regular" }),
 {{ end }}	font_size = 15,
-
-	-- Theme
-	color_scheme = "Gruvbox Dark (Gogh)",
-{{ if eq .chezmoi.os "windows" }}
+{{ if eq .chezmoi.os "darwin" }}
+	-- Transparency (blur is macOS only)
+	window_background_opacity = 0.85,
+	macos_window_background_blur = 20,
+{{ end }}{{ if eq .chezmoi.os "windows" }}
 	default_domain = 'WSL:Ubuntu',
 	window_close_confirmation = 'NeverPrompt',
 {{ end }}
 }
+
+-- Merge in theme colors / color_scheme
+for k, v in pairs(load_theme()) do
+	config[k] = v
+end
+
+return config

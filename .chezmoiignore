@@ -61,7 +61,12 @@ Yandex.Disk.localized
 .vscode
 .vim
 .vimrc
-.local
+.local/share
+.local/state
+.local/bin/agent
+.local/bin/claude
+.local/bin/cursor-agent
+.local/bin/grok
 .config/karabiner/*
 .config/qBittorrent
 .config/zed

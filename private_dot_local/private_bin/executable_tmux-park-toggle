@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#
+# park-toggle.sh — bounce the CURRENT window to/from a dedicated "park" session.
+#
+#   - In a normal session: stamp the window with where it came from
+#     (@home_session) and move it to the "park" session. You STAY put and
+#     keep working; tmux drops you on a neighboring window.
+#   - In the "park" session: read @home_session and move the window back
+#     there, following it so you can resume work.
+#
+# Bound in ~/.tmux.conf as:  bind-key b run-shell "~/.local/bin/tmux-park-toggle"
+set -eu
+
+PARK="park"
+
+win=$(tmux display-message -p '#{window_id}')          # stable across moves (@N)
+session=$(tmux display-message -p '#{session_name}')
+
+if [ "$session" = "$PARK" ]; then
+    # ---- un-park: send the window back to its origin and follow it ----
+    home=$(tmux show-options -wqv -t "$win" @home_session)
+    if [ -z "$home" ]; then
+        tmux display-message "park: no origin recorded for this window"
+        exit 0
+    fi
+    if ! tmux has-session -t "=$home" 2>/dev/null; then
+        tmux display-message "park: origin session '$home' is gone"
+        exit 0
+    fi
+    # Switch the client FIRST, so if moving this window empties (and destroys)
+    # the park session, our client is already safely in the home session.
+    tmux switch-client -t "$home"
+    tmux move-window -s "$win" -t "$home:"
+    tmux set-option -wu -t "$win" @home_session         # clear the stamp
+    tmux select-window -t "$win"
+else
+    # ---- park: shove the window aside, stay where we are ----
+    # Refuse if it's the only window, otherwise the move would kill the session.
+    count=$(tmux display-message -p '#{session_windows}')
+    if [ "$count" -le 1 ]; then
+        tmux display-message "park: refusing — this is the only window in '$session'"
+        exit 0
+    fi
+    tmux has-session -t "=$PARK" 2>/dev/null || tmux new-session -d -s "$PARK"
+    tmux set-option -w -t "$win" @home_session "$session"
+    tmux move-window -s "$win" -t "$PARK:"
+fi
