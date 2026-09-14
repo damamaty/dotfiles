@@ -1,4 +1,5 @@
 PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"  # theme-switch, tmux-park-toggle, claude
 
 if [ -d "$HOME/.pyenv" ]; then
     export PYENV_ROOT="$HOME/.pyenv"
