@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""tmux-copy-links — copy what tmux copy mode selected, keeping hidden links as markdown.
+
+Programs like Claude Code print OSC 8 hyperlinks: the terminal shows a title
+("Shopify/maintenance_tasks") and keeps the URL out of sight, so a plain copy gets only
+the title. tmux-yank runs this instead of pbcopy (@override_copy_command in ~/.tmux.conf)
+with the selection on stdin. Each selected link becomes [title](url); everything else is
+copied exactly as tmux selected it. Links to local files (file://) and links whose title
+is the URL itself stay plain text.
+
+Args, filled in by tmux: PANE CLIENT START_X START_Y END_X END_Y
+Test seam: TMUX_COPY_LINKS_CLIPBOARD (shell command that receives the final text).
+"""
+import os
+import re
+import shutil
+import subprocess
+import sys
+import unicodedata
+
+# OSC 8 (group 1 = url, empty = end of link) | SGR (group 2 = params) | any other escape
+TOKEN = re.compile(
+    r"\x1b\]8;[^;\x07\x1b]*;([^\x07\x1b]*)(?:\x07|\x1b\\)"
+    r"|\x1b\[([0-?]*)m"
+    r"|\x1b\[[0-?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b."
+)
+RESETS = {"", "0", "39", "49", "22", "23", "24", "27", "39;49", "0;39;49"}
+
+
+def cell_width(ch):
+    if unicodedata.combining(ch):
+        return 0
+    return 2 if unicodedata.east_asian_width(ch) in "WF" else 1
+
+
+def parse_line(line, width):
+    """Visible text of a captured line plus its links as [char_offset, title, url].
+
+    tmux's capture-pane doesn't mark the continuation of a link that wraps onto the next
+    row, so a link ending exactly at a row edge is extended over the text right after it:
+    up to the next style change if the link is colored (Claude's are), else up to the next
+    whitespace.
+    """
+    visible, col, found = "", 0, []
+    cur = None        # link being read
+    reopen = None     # link that just ended, if nothing visible followed yet
+    cont = None       # (link, styled) that ended at a row edge
+    styled = False
+    pos = 0
+
+    def add_text(text):
+        nonlocal visible, col, cont, reopen
+        if not text:
+            return
+        if cont is not None and cur is None:
+            link, was_styled = cont
+            link[1] += text if was_styled else re.match(r"\S*", text).group(0)
+        cont = reopen = None
+        if cur is not None:
+            cur[1] += text
+        visible += text
+        col += sum(cell_width(c) for c in text)
+
+    for m in TOKEN.finditer(line):
+        add_text(line[pos:m.start()])
+        pos = m.end()
+        url, sgr = m.group(1), m.group(2)
+        if url is not None:
+            if url:  # start of a link
+                if cur is None and reopen is not None and reopen[2] == url:
+                    cur = found.pop()  # same link continues after a style change
+                elif cur is None:
+                    cur = [len(visible), "", url]
+                reopen = None
+            elif cur is not None:  # end of a link
+                found.append(cur)
+                reopen = cur
+                cont = (cur, styled) if width and col and col % width == 0 else None
+                cur = None
+        elif sgr is not None:
+            styled = sgr not in RESETS
+    add_text(line[pos:])
+    if cur is not None:
+        found.append(cur)
+    return visible, found
+
+
+def wanted(title, url):
+    return title.strip() and not url.startswith("file:") and title.strip() != url.strip()
+
+
+def markdown(title, url):
+    title = title.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
+    url = url.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
+    return f"[{title}]({url})"
+
+
+def link_selection(text, captured, start_x, width):
+    lines = [parse_line(line, width) for line in captured.split("\n")]
+    if lines and lines[-1] == ("", []):
+        lines.pop()
+    body, newline = (text[:-1], "\n") if text.endswith("\n") else (text, "")
+    plain = body.split("\n")
+    if len(plain) == len(lines):
+        # same lines as the capture: place each link by its position
+        for i, (visible, found) in enumerate(lines):
+            shift = 0
+            if i == 0:  # the selection starts at column start_x of the first line
+                col = 0
+                while shift < len(visible) and col < start_x:
+                    col += cell_width(visible[shift])
+                    shift += 1
+            line = plain[i]
+            for offset, title, url in reversed(found):
+                at = offset - shift
+                if wanted(title, url) and at >= 0 and line[at:at + len(title)] == title:
+                    line = line[:at] + markdown(title, url) + line[at + len(title):]
+            plain[i] = line
+        return "\n".join(plain) + newline
+    # lines don't correspond (rectangle selection, newlines stripped): match titles in order
+    out, pos = text, 0
+    for _, found in lines:
+        for _, title, url in found:
+            at = out.find(title, pos) if wanted(title, url) else -1
+            if at >= 0:
+                link = markdown(title, url)
+                out = out[:at] + link + out[at + len(title):]
+                pos = at + len(link)
+    return out
+
+
+def tmux(*args, data=None):
+    return subprocess.run(["tmux", *args], input=data, capture_output=True).stdout.decode(
+        "utf-8", "surrogateescape")
+
+
+def to_clipboard(data, client, linked):
+    raw = data.encode("utf-8", "surrogateescape")
+    override = os.environ.get("TMUX_COPY_LINKS_CLIPBOARD")
+    if override:
+        subprocess.run(override, shell=True, input=raw)
+        return
+    for cmd in (["pbcopy"], ["clip.exe"], ["wl-copy"], ["xsel", "-ib"], ["xclip", "-selection", "clipboard"]):
+        if shutil.which(cmd[0]):
+            subprocess.run(cmd, input=raw)
+            break
+    if linked and client:
+        # copy-pipe already put the plain text in a tmux buffer and (set-clipboard) sent it to
+        # the terminal's clipboard; replace both, which also reaches the local clipboard from
+        # a tmux over ssh
+        tmux("load-buffer", "-w", "-t", client, "-", data=raw)
+
+
+def main():
+    text = sys.stdin.buffer.read().decode("utf-8", "surrogateescape")
+    try:
+        pane, client = sys.argv[1:3]
+        sx, sy, ex, ey = map(int, sys.argv[3:7])
+    except ValueError:  # no selection coordinates: copy as is
+        to_clipboard(text, "", False)
+        return
+    if (sy, sx) > (ey, ex):  # selected upwards
+        sx, sy, ex, ey = ex, ey, sx, sy
+    # coordinates count from the top of the history; capture-pane counts from the top of
+    # the screen, and the history may have grown since the key press
+    hsize, width = (tmux("display", "-p", "-t", pane, "#{history_size} #{pane_width}").split() + ["0", "0"])[:2]
+    top = int(hsize or 0)
+    captured = tmux("capture-pane", "-p", "-e", "-J", "-t", pane, "-S", str(sy - top), "-E", str(ey - top))
+    linked = link_selection(text, captured, sx, int(width or 0)) if "\x1b]8;" in captured else text
+    to_clipboard(linked, client, linked != text)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,76 @@
+#!/bin/zsh
+# tmux-launchd-start — start the tmux server as a launchd job instead of as a child of the
+# terminal app. macOS counts a server started from a terminal as part of that app, and
+# force-quitting the app (Dock / Option-Cmd-Esc) kills the server with every pane in it.
+# Nothing starts at login: the `tmux` wrapper in ~/.zshrc calls this when `tmux a` finds
+# no server, then attaches as usual.
+#
+#   tmux-launchd-start         snapshot this shell's environment, start the job, wait for the server
+#   tmux-launchd-start --job   (run by launchd) restore that environment and start the server
+#
+# Test seams: TMUX_LAUNCHD_LABEL (job label), TMUX_LAUNCHD_TMUX_ARGS (e.g. "-L test -f conf").
+emulate -L zsh
+
+label=${TMUX_LAUNCHD_LABEL:-local.tmux-server}
+tmux_args=(${(z)TMUX_LAUNCHD_TMUX_ARGS})
+tmux_bin=${commands[tmux]:-/opt/homebrew/bin/tmux}
+state=${XDG_CACHE_HOME:-$HOME/.cache}/tmux-launchd
+envfile=$state/$label.env
+plist=$state/$label.plist
+
+if [[ $1 == --job ]]; then
+  # launchd hands us a bare environment (no LANG, minimal PATH); use the one the user's
+  # shell had, exactly as if the server had been started from it
+  if [[ -r $envfile ]]; then
+    source $envfile
+    rm -f $envfile
+    tmux_bin=${commands[tmux]:-$tmux_bin}
+  fi
+  cd ~
+  exec $tmux_bin $tmux_args start-server
+fi
+
+$tmux_bin $tmux_args has-session 2>/dev/null && exit 0
+
+mkdir -p $state && chmod 700 $state
+(
+  umask 077
+  for name in ${(k)parameters[(R)*export*]}; do
+    # these describe the one terminal/pane this was typed in, not the server
+    [[ $name == (TMUX|TMUX_PANE|PWD|OLDPWD|SHLVL|_) ]] && continue
+    print -r -- "export $name=${(q)${(P)name}}"
+  done > $envfile
+)
+
+cat > $plist <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>$label</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/zsh</string><string>${0:A}</string><string>--job</string></array>
+  <key>EnvironmentVariables</key>
+  <dict><key>TMUX_LAUNCHD_LABEL</key><string>$label</string>
+        <key>TMUX_LAUNCHD_TMUX_ARGS</key><string>${TMUX_LAUNCHD_TMUX_ARGS:-}</string></dict>
+  <!-- the `tmux start-server` client exits right after forking the server; keep launchd
+       from killing what it leaves behind -->
+  <key>AbandonProcessGroup</key><true/>
+  <!-- no background throttling: everything in tmux inherits this -->
+  <key>ProcessType</key><string>Interactive</string>
+  <key>StandardErrorPath</key><string>$state/$label.log</string>
+</dict>
+</plist>
+EOF
+
+uid=$(id -u)
+# no server is running at this point, so an old definition has nothing of ours left in it
+launchctl bootout gui/$uid/$label 2>/dev/null
+launchctl bootstrap gui/$uid $plist || exit 1
+launchctl kickstart gui/$uid/$label || exit 1
+for i in {1..50}; do
+  $tmux_bin $tmux_args has-session 2>/dev/null && exit 0
+  sleep 0.1
+done
+print -u2 "tmux-launchd-start: no tmux server after 5s (see $state/$label.log)"
+exit 1

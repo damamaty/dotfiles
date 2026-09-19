@@ -18,9 +18,6 @@ local function load_theme()
 end
 
 local config = {
-	-- Window settings
-	use_ime = true,
-
 	-- Hide the tab bar
 	enable_tab_bar = false,
 
@@ -50,16 +47,62 @@ local config = {
 			mods = "SHIFT|CTRL",
 			action = wezterm.action.SendString("\x20\x5b"), -- <space> + [
 		},
+		-- Cmd+Ctrl+a: the nested-tmux toggle without Ctrl+Alt (Loop's trigger holds right Ctrl +
+		-- left Option); sends what tmux reads as Ctrl+Alt+a, see ~/.tmux.conf
+		{ key = "a", mods = "CMD|CTRL", action = wezterm.action.SendString("\x1b\x01") },
+		-- QuickSelect: label everything copyable on screen (URLs, paths, hashes) and copy
+		-- the picked one. Replaces the default CTRL+SHIFT+Space, which macOS input
+		-- switching swallows.
+		{ key = "Space", mods = "CMD|SHIFT", action = wezterm.action.QuickSelect },
+		-- Same, but URLs only, and the picked one is opened instead of copied
+		{
+			key = "O",
+			mods = "CMD|SHIFT",
+			action = wezterm.action.QuickSelectArgs({
+				label = "open url",
+				patterns = { "https?://[^\\s<>\"'`│]+[^\\s<>\"'`│.,;:)\\]]" },
+				action = wezterm.action_callback(function(window, pane)
+					wezterm.open_with(window:get_selection_text_for_pane(pane))
+				end),
+			}),
+		},
 	},
 
 	-- Font settings
 {{ if eq .chezmoi.os "darwin" }}	font = wezterm.font("Iosevka Nerd Font Mono", { weight = "Bold" }),
 {{ else if eq .chezmoi.os "windows" }}	font = wezterm.font("Cascadia Code PL", { weight = "Regular" }),
 {{ end }}	font_size = 15,
+
+	-- Draw up to 120 fps (default 60) for 120 Hz displays. It's only a ceiling: on a 60 Hz
+	-- screen the extra frames during heavy output are simply never shown. Static on purpose:
+	-- calling wezterm.gui.screens() while the config loads deadlocks the GUI.
+	max_fps = 120,
 {{ if eq .chezmoi.os "darwin" }}
 	-- Transparency (blur is macOS only)
 	window_background_opacity = 0.85,
 	macos_window_background_blur = 20,
+
+	-- Cmd+click opens links, also when tmux/nvim own the mouse (mouse_reporting).
+	-- The Down is swallowed so the app doesn't also see a click.
+	mouse_bindings = {
+		{
+			event = { Up = { streak = 1, button = "Left" } },
+			mods = "CMD",
+			action = wezterm.action.OpenLinkAtMouseCursor,
+		},
+		{
+			event = { Up = { streak = 1, button = "Left" } },
+			mods = "CMD",
+			action = wezterm.action.OpenLinkAtMouseCursor,
+			mouse_reporting = true,
+		},
+		{
+			event = { Down = { streak = 1, button = "Left" } },
+			mods = "CMD",
+			action = wezterm.action.Nop,
+			mouse_reporting = true,
+		},
+	},
 {{ end }}{{ if eq .chezmoi.os "windows" }}
 	default_domain = 'WSL:Ubuntu',
 	window_close_confirmation = 'NeverPrompt',

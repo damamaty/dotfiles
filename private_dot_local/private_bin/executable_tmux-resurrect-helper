@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# tmux-resurrect-helper — extras wired into tmux-resurrect's hooks (see ~/.tmux.conf).
+#
+#   post-save      record which Claude Code session runs in each pane, next to the save
+#                  file resurrect just wrote
+#   pre-restore    remember the startup pane when restoring into a freshly started server
+#   pre-processes  tag each restored pane with the Claude session it had (@claude_resume)
+#   post-restore   close the startup window if the restore left it as an extra
+#   claude-resume  run inside a restored pane (resurrect types it there): resume the
+#                  tagged session; with no tag do nothing, so the restored history stays
+#
+# The pane -> session mapping comes from Claude Code's own registry of running
+# processes (~/.claude/sessions/<pid>.json, fields pid/sessionId/cwd/tmux). It's
+# undocumented; if it changes shape, panes simply aren't resumed.
+#
+# Test seams: CLAUDE_SESSIONS_DIR (registry dir), CLAUDE_PROJECTS_DIR (transcripts),
+# CLAUDE_RESUME_CMD (claude binary).
+set -u
+
+resurrect_dir() {
+  local d
+  d=$(tmux show -gqv @resurrect-dir)
+  if [ -z "$d" ]; then
+    if [ -d "$HOME/.tmux/resurrect" ]; then
+      d="$HOME/.tmux/resurrect"
+    else
+      d="${XDG_DATA_HOME:-$HOME/.local/share}/tmux/resurrect"
+    fi
+  fi
+  # same expansion resurrect applies to @resurrect-dir
+  printf '%s\n' "$d" | sed "s,\$HOME,$HOME,g; s,\$HOSTNAME,$(hostname),g; s,~,$HOME,g"
+}
+
+# claude_sessions_<timestamp>.tsv for the save that `last` points to
+map_file() {
+  local dir last
+  dir=$(resurrect_dir)
+  last=$(readlink "$dir/last") || return 1
+  last=$(basename "$last" .txt)
+  printf '%s/claude_sessions_%s.tsv\n' "$dir" "${last#tmux_resurrect_}"
+}
+
+post_save() {
+  local out reg projects panes procs f pid pane sid upd cwd line pane_pid pos
+  out=$(map_file) || return 0
+  reg="${CLAUDE_SESSIONS_DIR:-$HOME/.claude/sessions}"
+  projects="${CLAUDE_PROJECTS_DIR:-$HOME/.claude/projects}"
+  panes=$(tmux list-panes -a -F '#{pane_id} #{pane_pid} #{session_name}:#{window_index}.#{pane_index}')
+  procs=$(ps -axo pid=,ppid=)
+  for f in "$reg"/*.json; do
+    [ -e "$f" ] || continue
+    pid=$(basename "$f" .json)
+    kill -0 "$pid" 2>/dev/null || continue
+    IFS=$'\t' read -r pid pane sid upd cwd < <(jq -r \
+      'select(.sessionId and .tmux) | [.pid, (.tmux | split(".") | last), .sessionId, (.updatedAt // 0), (.cwd // "")] | @tsv' \
+      "$f" 2>/dev/null) || continue
+    line=$(printf '%s\n' "$panes" | awk -v p="$pane" '$1 == p')
+    [ -n "$line" ] || continue
+    pane_pid=$(printf '%s\n' "$line" | cut -d' ' -f2)
+    pos=$(printf '%s\n' "$line" | cut -d' ' -f3-)
+    # the registry has no server socket: only trust entries whose process really
+    # runs under this pane of this server
+    printf '%s\n' "$procs" | awk -v p="$pid" -v a="$pane_pid" '
+      { parent[$1] = $2 }
+      END { for (i = 0; i < 64 && p > 1; i++) { if (p == a) exit 0; p = parent[p] } exit 1 }' || continue
+    # no transcript yet = nothing was said in it; resuming would only paint an empty
+    # Claude over the restored history
+    compgen -G "$projects/*/$sid.jsonl" > /dev/null || continue
+    printf '%s\t%s\t%s\t%s\n' "$upd" "$pos" "$sid" "$cwd"
+  done | sort -rn | awk -F'\t' '!seen[$3]++ { print $2 "\t" $3 "\t" $4 }' > "$out.tmp" && mv "$out.tmp" "$out"
+  # drop maps whose save file resurrect has already cleaned up
+  for f in "$(dirname "$out")"/claude_sessions_*.tsv; do
+    [ -e "$f" ] || continue
+    line=$(basename "$f" .tsv)
+    [ -e "$(dirname "$f")/tmux_resurrect_${line#claude_sessions_}.txt" ] || rm -f "$f"
+  done
+}
+
+pre_restore() {
+  if [ "$(tmux list-panes -a | wc -l | tr -d ' ')" -eq 1 ]; then
+    tmux set -g @resurrect-initial-pane "$(tmux list-panes -a -F '#{pane_id}')"
+  else
+    tmux set -gu @resurrect-initial-pane
+  fi
+}
+
+pre_processes() {
+  local map initial pos sid cwd id
+  map=$(map_file) || return 0
+  [ -f "$map" ] || return 0
+  initial=$(tmux show -gqv @resurrect-initial-pane)
+  # positions still match the save file here: nothing has been renumbered yet
+  while IFS=$'\t' read -r pos sid cwd; do
+    id=$(tmux display -p -t "=$pos" '#{pane_id}' 2>/dev/null) || continue
+    [ -n "$id" ] && [ "$id" != "$initial" ] || continue
+    tmux set -p -t "$id" @claude_resume "$sid"
+    tmux set -p -t "$id" @claude_resume_cwd "$cwd"
+  done < "$map"
+}
+
+post_restore() {
+  local initial info win panes cmd sess other c
+  initial=$(tmux show -gqv @resurrect-initial-pane)
+  tmux set -gu @resurrect-initial-pane
+  [ -n "$initial" ] || return 0
+  # gone means resurrect reused it for a saved pane
+  info=$(tmux display -p -t "$initial" '#{window_id} #{window_panes} #{pane_current_command} #{session_id} #{session_windows}' 2>/dev/null) || return 0
+  set -- $info
+  win=$1 panes=$2 cmd=$3 sess=$4
+  # only a pristine startup window: one pane, still just a shell
+  [ "$panes" -eq 1 ] || return 0
+  case "$cmd" in sh | bash | zsh | fish | -*) ;; *) return 0 ;; esac
+  if [ "$5" -gt 1 ]; then
+    tmux kill-window -t "$win"
+  else
+    # the startup session isn't part of the saved state: move clients off it, then drop it
+    other=$(tmux list-sessions -F '#{session_id}' | grep -vxF "$sess" | head -1)
+    [ -n "$other" ] || return 0
+    for c in $(tmux list-clients -t "$sess" -F '#{client_name}'); do
+      tmux switch-client -c "$c" -t "$other"
+    done
+    tmux kill-session -t "$sess"
+  fi
+}
+
+claude_resume() {
+  local pane sid cwd
+  pane="${TMUX_PANE:-}"
+  sid=$(tmux show -pqv -t "$pane" @claude_resume)
+  cwd=$(tmux show -pqv -t "$pane" @claude_resume_cwd)
+  tmux set -pu -t "$pane" @claude_resume
+  tmux set -pu -t "$pane" @claude_resume_cwd
+  if [ -z "$sid" ]; then
+    echo "(no Claude session recorded for this pane; the history above is what it showed)"
+    return 0
+  fi
+  if [ -n "$cwd" ] && ! cd "$cwd" 2>/dev/null; then
+    echo "(Claude session $sid ran in $cwd, which no longer exists: claude --resume $sid)"
+    return 0
+  fi
+  exec "${CLAUDE_RESUME_CMD:-claude}" --resume "$sid"
+}
+
+case "${1:-}" in
+  post-save) post_save ;;
+  pre-restore) pre_restore ;;
+  pre-processes) pre_processes ;;
+  post-restore) post_restore ;;
+  claude-resume) claude_resume ;;
+  *) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+esac

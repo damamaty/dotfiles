@@ -54,3 +54,14 @@ ssh-add --apple-load-keychain -q
 yoink() {
     osascript -e "set the clipboard to (POSIX file \"$PWD/$1\")"
 }
+
+# `tmux a` with no server running: have launchd start the server first (tmux-launchd-start),
+# so it isn't part of the terminal app and survives the app being force-quit. Falls back
+# to the usual start if that fails.
+tmux() {
+    if [[ $OSTYPE == darwin* && ( $# -eq 0 || $1 == (a|at|attach|attach-session|new|new-session) ) ]] \
+            && ! command tmux has-session 2>/dev/null; then
+        tmux-launchd-start || print -u2 "tmux: launchd start failed, starting it the usual way"
+    fi
+    command tmux "$@"
+}
