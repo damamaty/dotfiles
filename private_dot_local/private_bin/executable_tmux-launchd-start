@@ -27,6 +27,9 @@ if [[ $1 == --job ]]; then
     tmux_bin=${commands[tmux]:-$tmux_bin}
   fi
   cd ~
+  # launchd's 256-fd soft limit would otherwise propagate to the server and to every
+  # pane and editor under it; see the same guard in ~/.zshrc
+  ulimit -Sn 10240
   exec $tmux_bin $tmux_args start-server
 fi
 

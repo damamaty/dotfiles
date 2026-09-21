@@ -1,4 +1,11 @@
 PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+
+# macOS hands launchd-started processes a 256-fd soft limit. nvim keeps one fd per
+# loaded buffer's swapfile, so a big session runs out and every job it spawns dies
+# with "E903: Process failed to start: bad file descriptor".
+if [[ $(ulimit -Sn) != unlimited ]] && (( $(ulimit -Sn) < 10240 )); then
+    ulimit -Sn 10240
+fi
 export PATH="$HOME/.local/bin:$PATH"  # theme-switch, tmux-park-toggle, claude
 
 if [ -d "$HOME/.pyenv" ]; then
