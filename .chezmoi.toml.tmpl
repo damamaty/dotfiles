@@ -1,4 +1,9 @@
 {{- $machine := promptStringOnce . "machine" "Machine type" -}}
 
+{{ if eq .chezmoi.os "windows" }}
+# Git for Windows keeps cat in usr\bin, which is not on PATH by default, so
+# chezmoi's default pager (cat) breaks `chezmoi diff` and `chezmoi apply -v`.
+pager = ""
+{{ end }}
 [data]
     machine = {{ $machine | quote }}
