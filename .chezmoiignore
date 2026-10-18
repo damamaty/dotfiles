@@ -13,6 +13,20 @@
 !.gitconfig
 !.wezterm.lua
 #
+# PowerToys Keyboard Manager remaps (mac-style keys); rationale in ~/code/machines/docs/agent/inbox
+!AppData
+!AppData/Local
+!AppData/Local/Microsoft
+!AppData/Local/Microsoft/PowerToys
+!AppData/Local/Microsoft/PowerToys/Keyboard Manager
+!AppData/Local/Microsoft/PowerToys/Keyboard Manager/default.json
+#
+{{- end -}}
+
+{{- if ne .machine "windows" }}
+# Windows-only payload: never create AppData on macOS or WSL.
+AppData
+#
 {{- end -}}
 
 .DS_Store
